@@ -1,3 +1,14 @@
 {
   "extends": "@react-native/typescript-config/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react", // Ensure this is set for JSX support
+    "strict": true,
+    // "moduleResolution": "node16", // Set module resolution to a compatible setting
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "exclude": ["node_modules"],
+  "include": ["src/**/*", "screens/**/*"]
 }

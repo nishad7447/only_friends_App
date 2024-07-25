@@ -1,23 +1,26 @@
-// Install the following packages:
-// npm install @react-navigation/native @react-navigation/stack axios react-native-toast-message @react-native-google-signin/google-signin
-// npm install @react-native-async-storage/async-storage @types/react-native @types/react @types/react-navigation @types/react-native-toast-message @types/axios
-// Add the following to your tsconfig.json under "compilerOptions":
-// "types": ["react-native", "react", "react-navigation", "react-native-toast-message", "axios"]
-
-import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/google-signin';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+} from 'react-native';
+import {useNavigation, NavigationProp} from '@react-navigation/native';
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+} from '@react-native-google-signin/google-signin';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
+import FixedPlugin from './Components/FixedPlugin';
 // Import your custom components here
 // import InputField from "../../components/IniputField/InputField";
 // import Card from "../../components/Card/Card";
 // import FixedPlugin from "../../components/FixedPlugin/FixedPlugin";
 
 type SignInProps = {};
-
 
 export default function SignIn({}: SignInProps) {
   const [email, setEmail] = useState<string>('');
@@ -27,7 +30,7 @@ export default function SignIn({}: SignInProps) {
   const [formErr, setFormErr] = useState<string>('');
   const navigation = useNavigation<NavigationProp<any>>();
 
-  const UserBaseURL = 'http://localhost:3000'
+  const UserBaseURL = 'http://localhost:3000';
 
   useEffect(() => {
     const checkToken = async () => {
@@ -69,18 +72,18 @@ export default function SignIn({}: SignInProps) {
     }
 
     axios
-      .post(`${UserBaseURL}/auth/login`, { Email: email, Password: password })
-      .then((res) => {
+      .post(`${UserBaseURL}/auth/login`, {Email: email, Password: password})
+      .then(res => {
         if (res.data.message === 'Login Success') {
           AsyncStorage.setItem('jwtToken', JSON.stringify(res.data.token));
           AsyncStorage.setItem('user', JSON.stringify(res.data.user));
-          Toast.show({ type: 'success', text1: 'Login success' });
+          Toast.show({type: 'success', text1: 'Login success'});
           navigation.navigate('Home');
         }
       })
-      .catch((err) => {
+      .catch(err => {
         const message = err?.response?.data?.message;
-        Toast.show({ type: 'error', text1: message });
+        Toast.show({type: 'error', text1: message});
         if (message === 'User does not exist') {
           setEmailErr(message);
         } else if (message === 'Incorrect credentials') {
@@ -99,14 +102,14 @@ export default function SignIn({}: SignInProps) {
       const userInfo = await GoogleSignin.signIn();
       axios
         .post(`${UserBaseURL}/auth/googleSignIn`, userInfo)
-        .then((res) => {
+        .then(res => {
           if (res.data.message === 'Login Success') {
             AsyncStorage.setItem('jwtToken', JSON.stringify(res.data.token));
             AsyncStorage.setItem('user', JSON.stringify(res.data.user));
-            Toast.show({ type: 'success', text1: 'Login success' });
+            Toast.show({type: 'success', text1: 'Login success'});
             navigation.navigate('Home');
           } else {
-            Toast.show({ type: 'error', text1: res.data.message });
+            Toast.show({type: 'error', text1: res.data.message});
             if (res.data.message === 'User does not exist') {
               setEmailErr(res.data.message);
             } else if (res.data.message === 'User is blocked') {
@@ -114,8 +117,8 @@ export default function SignIn({}: SignInProps) {
             }
           }
         })
-        .catch((err) => {
-          Toast.show({ type: 'error', text1: err.message });
+        .catch(err => {
+          Toast.show({type: 'error', text1: err.message});
           if (err.message === 'Request failed with status code 400') {
             setEmailErr('User does not exist');
           } else {
@@ -130,14 +133,15 @@ export default function SignIn({}: SignInProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>OnlyFriends</Text>
-      {/* Uncomment and use your custom components here */}
-      {/* <FixedPlugin /> */}
+      <FixedPlugin />
       {/* <Card extra="flex-row items-center rounded-xl shadow-lg bg-white dark:bg-gray-900"> */}
       <View style={styles.card}>
         <Text style={styles.heading}>Sign In</Text>
-        <Text style={styles.subheading}>Enter your email and password to sign in!</Text>
+        <Text style={styles.subheading}>
+          Enter your email and password to sign in!
+        </Text>
         <GoogleSigninButton
-          style={{ width: 192, height: 48 }}
+          style={{width: 192, height: 48}}
           size={GoogleSigninButton.Size.Wide}
           color={GoogleSigninButton.Color.Dark}
           onPress={handleGoogleLogin}
@@ -203,7 +207,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
