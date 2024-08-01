@@ -18,8 +18,6 @@
     "@types/axios": "^0.14.0",
     "@types/react-navigation": "^3.4.0",
     "axios": "^1.7.2",
-    "install": "^0.13.0",
-    "npm": "^10.8.2",
     "react": "18.2.0",
     "react-native": "0.74.3",
     "react-native-gesture-handler": "^2.17.1",
