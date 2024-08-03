@@ -33,8 +33,8 @@ const styles = StyleSheet.create({
     elevation: 5, // Shadow for Android
   },
   iconContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 30,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    borderRadius: 50,
     padding: 10,
   },
 });

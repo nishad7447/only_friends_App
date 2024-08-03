@@ -17,15 +17,13 @@ import { NavigationProp, useNavigation } from '@react-navigation/native';
 import Card from './Components/Card';
 import FixedPlugin from './Components/FixedPlugin';
 import { ThemeContext } from './Context/ThemeContext';
-// import { UserBaseURL } from '../../API'; // Adjust path as needed
-// import Modal from '../../components/Modal/Modal'; // Assuming you have a similar Modal component
+import { UserBaseURL } from './Components/API';
 
 GoogleSignin.configure({
   webClientId:
     '969952852580-q77urroi4f3chu5hlua9nqpvq6vl1gje.apps.googleusercontent.com',
 });
 
-const UserBaseURL = 'http://localhost:3000';
 
 export default function SignUp() {
   const [email, setEmail] = useState('');
@@ -33,7 +31,6 @@ export default function SignUp() {
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [mobile, setMobile] = useState('');
-  const [otp, setOtp] = useState('');
   const [otpErr, setOtpErr] = useState('');
   const [emailErr, setEmailErr] = useState('');
   const [passErr, setPassErr] = useState('');
@@ -54,57 +51,6 @@ export default function SignUp() {
 
   const validatePasswordStrength = (password: string) => {
     return password.length >= 3;
-  };
-
-  const userSignupOtpSend = () => {
-    if (!email || !password || !name || !username) {
-      setFormErr('Please fill in all fields');
-      return;
-    }
-    if (!validateEmail(email)) {
-      setEmailErr('Invalid email address');
-      return;
-    }
-    if (!validateMobile(mobile)) {
-      setMobErr('Invalid Mobile');
-      return;
-    }
-    if (!validatePasswordStrength(password)) {
-      setPassErr('Password must be at least 3 char');
-      return;
-    }
-
-    axios
-      .post(`${UserBaseURL}/auth/signup-otpSend`, {
-        Email: email,
-        Password: password,
-        Name: name,
-        UserName: username,
-        Mobile: mobile,
-      })
-      .then(res => {
-        if (res.data.message === 'Otp send Verification Pending') {
-          Alert.alert('Info', res.data.message);
-          showOtpModal();
-        }
-      })
-      .catch(err => {
-        if (err.response?.data?.message) {
-          switch (err.response.data.message) {
-            case 'User already Exist':
-              setEmailErr(err.response.data.message);
-              break;
-            case 'User name taken':
-              setUsernameErr(err.response.data.message);
-              break;
-            case 'Mobile already Exist':
-              setMobErr(err.response.data.message);
-              break;
-            default:
-              setFormErr(err.response.data.message);
-          }
-        }
-      });
   };
 
   const userSignupOtpSubmit = () => {
@@ -132,11 +78,11 @@ export default function SignUp() {
         Name: name,
         UserName: username,
         Mobile: mobile,
-        otp: otp,
+        // otp: otp,
       })
       .then(res => {
         if (res.data.message === 'Verification success') {
-          Alert.alert('Success', 'Otp verified & signed up');
+          Alert.alert('Success', 'Signed up');
           navigation.navigate('Home'); // Adjust based on your navigation setup
         }
       })
@@ -162,15 +108,6 @@ export default function SignUp() {
       });
   };
 
-  const [otpModal, setOtpModal] = useState(false);
-
-  const showOtpModal = () => {
-    setOtpModal(true);
-  };
-
-  const otpModalCancel = () => {
-    setOtpModal(false);
-  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -361,7 +298,7 @@ export default function SignUp() {
             {formErr || emailErr || usernameErr || passErr || mobErr}
           </Text>
         ) : null}
-        <TouchableOpacity style={styles.button} onPress={userSignupOtpSend}>
+        <TouchableOpacity style={styles.button} onPress={userSignupOtpSubmit}>
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
         {/* <Button title="Sign Up" onPress={userSignupOtpSend} /> */}
@@ -371,33 +308,6 @@ export default function SignUp() {
           </Text>
         </TouchableOpacity>
       </Card>
-      {otpModal && (
-        // <Modal
-        //   heading="OTP submit"
-        //   content={
-        //     <View>
-        //       <TextInput
-        //         style={[styles.input, otpErr ? styles.errorInput : null]}
-        //         placeholder="1234"
-        //   placeholderTextColor={darkMode ? '#fff' : '#333'} // Placeholder color
-
-        //         keyboardType="numeric"
-        //         maxLength={4}
-        //         value={otp}
-        //         onChangeText={(text) => setOtp(text.replace(/\D/g, ''))}
-        //       />
-        //       {formErr || emailErr || usernameErr || passErr || mobErr || otpErr ? (
-        //         <Text style={styles.errorText}>
-        //           {formErr || emailErr || usernameErr || passErr || mobErr || otpErr}
-        //         </Text>
-        //       ) : null}
-        //     </View>
-        //   }
-        //   onCancel={otpModalCancel}
-        //   onConfirm={userSignupOtpSubmit}
-        // />
-        <></>
-      )}
     </View>
   );
 }

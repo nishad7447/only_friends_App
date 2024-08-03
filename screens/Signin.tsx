@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import {
   GoogleSignin,
   GoogleSigninButton,
@@ -17,6 +17,7 @@ import Toast from 'react-native-toast-message';
 import FixedPlugin from './Components/FixedPlugin';
 import Card from './Components/Card';
 import { ThemeContext } from './Context/ThemeContext';
+import { UserBaseURL } from './Components/API';
 
 type SignInProps = {};
 
@@ -28,9 +29,8 @@ export default function SignIn({ }: SignInProps) {
   const [formErr, setFormErr] = useState<string>('');
   const navigation = useNavigation<NavigationProp<any>>();
 
-  const UserBaseURL = 'http://localhost:3000';
-
-  useEffect(() => {
+  useFocusEffect(
+    useCallback(() => {
     const checkToken = async () => {
       const token = await AsyncStorage.getItem('jwtToken');
       if (token) {
@@ -38,7 +38,8 @@ export default function SignIn({ }: SignInProps) {
       }
     };
     checkToken();
-  }, []);
+  }, [navigation])
+);
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -68,11 +69,13 @@ export default function SignIn({ }: SignInProps) {
       setPassErr('Password must be at least 3 characters');
       return;
     }
+    console.log({UserBaseURL:`${UserBaseURL}/auth/login`,email,password})
 
     axios
       .post(`${UserBaseURL}/auth/login`, { Email: email, Password: password })
       .then(res => {
         if (res.data.message === 'Login Success') {
+          console.log(res.data)
           AsyncStorage.setItem('jwtToken', JSON.stringify(res.data.token));
           AsyncStorage.setItem('user', JSON.stringify(res.data.user));
           Toast.show({ type: 'success', text1: 'Login success' });
@@ -80,6 +83,7 @@ export default function SignIn({ }: SignInProps) {
         }
       })
       .catch(err => {
+        console.log(err,"Catchhh")
         const message = err?.response?.data?.message;
         Toast.show({ type: 'error', text1: message });
         if (message === 'User does not exist') {
@@ -102,8 +106,8 @@ export default function SignIn({ }: SignInProps) {
         .post(`${UserBaseURL}/auth/googleSignIn`, userInfo)
         .then(res => {
           if (res.data.message === 'Login Success') {
+            console.log(res.data)
             AsyncStorage.setItem('jwtToken', JSON.stringify(res.data.token));
-            AsyncStorage.setItem('user', JSON.stringify(res.data.user));
             Toast.show({ type: 'success', text1: 'Login success' });
             navigation.navigate('Home');
           } else {
@@ -116,6 +120,7 @@ export default function SignIn({ }: SignInProps) {
           }
         })
         .catch(err => {
+          console.log(err)
           Toast.show({ type: 'error', text1: err.message });
           if (err.message === 'Request failed with status code 400') {
             setEmailErr('User does not exist');
