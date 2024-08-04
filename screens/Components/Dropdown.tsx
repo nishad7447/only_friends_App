@@ -1,24 +1,25 @@
-import React, { useState, useEffect, ReactNode, useRef, useContext } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import {
   View,
   TouchableOpacity,
   Modal,
   StyleSheet,
   Animated,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { ThemeContext } from '../Context/ThemeContext';
 
 interface DropdownProps {
-  button: ReactNode;
-  children: ReactNode;
-  top:number;
-  right:number;
+  button: React.ReactNode;
+  children: React.ReactNode;
+  top: number;
+  right: number;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({ button, children, top, right }) => {
   const [openWrapper, setOpenWrapper] = useState(false);
   const scaleValue = useRef(new Animated.Value(0)).current;
-const {darkMode}=useContext(ThemeContext)
+  const { darkMode } = useContext(ThemeContext);
 
   const toggleDropdown = () => {
     setOpenWrapper(!openWrapper);
@@ -32,7 +33,7 @@ const {darkMode}=useContext(ThemeContext)
   const styles = StyleSheet.create({
     container: {
       position: 'relative',
-  },
+    },
     dropdown: {
       position: 'absolute',
       zIndex: 10,
@@ -52,7 +53,13 @@ const {darkMode}=useContext(ThemeContext)
       justifyContent: 'center',
       alignItems: 'center',
     },
+    dropdownContent: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
   });
+
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={toggleDropdown}>
@@ -63,23 +70,28 @@ const {darkMode}=useContext(ThemeContext)
         visible={openWrapper}
         onRequestClose={() => setOpenWrapper(false)}
       >
-        <TouchableOpacity style={styles.modalBackground} onPress={() => setOpenWrapper(false)}>
-          <Animated.View
-            style={[
-              styles.dropdown,
-              {
-                transform: [{ scale: scaleValue }],
-                opacity: scaleValue,
-              },
-            ]}
-          >
-            {children}
-          </Animated.View>
-        </TouchableOpacity>
+        <TouchableWithoutFeedback onPress={() => setOpenWrapper(false)}>
+          <View style={styles.modalBackground}>
+            <TouchableWithoutFeedback>
+              <Animated.View
+                style={[
+                  styles.dropdown,
+                  {
+                    transform: [{ scale: scaleValue }],
+                    opacity: scaleValue,
+                  },
+                ]}
+              >
+                <View style={styles.dropdownContent}>
+                  {children}
+                </View>
+              </Animated.View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
       </Modal>
     </View>
   );
 };
-
 
 export default Dropdown;
