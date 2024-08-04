@@ -34,6 +34,7 @@ import {ScrollView} from 'react-native-gesture-handler';
 import {ThemeContext} from '../Context/ThemeContext';
 import Dropdown from './Dropdown';
 import NotificationComponent from './Notification';
+import Spinner from './Spinner';
 
 interface ProtectedProps {
   children: ReactNode;
@@ -177,133 +178,143 @@ const Protected: React.FC<ProtectedProps> = ({children}) => {
         backgroundColor={'transparent'}
         barStyle={darkMode ? 'light-content' : 'dark-content'}
       />
-      <SafeAreaView style={{flex: 1}}>
-        <View
-          style={[
-            styles.container,
-            {backgroundColor: darkMode ? '#1B2559' : '#EBF1F7'},
-          ]}>
-          <View style={styles.content}>
-            <View
-              style={[
-                styles.navbar,
-                {
-                  paddingTop: 10,
-                  backgroundColor: darkMode ? '#111C44' : '#FFFFFF',
-                },
-              ]}>
-              <TouchableOpacity
-                onPress={() => console.log('Back button pressed')}>
-                <AntDesign
-                  name="left"
-                  size={14}
-                  color={darkMode ? '#fff' : '#000'}
-                  style={{width: 8}}
-                />
-              </TouchableOpacity>
+      {loadingUser ? (
+        <Spinner />
+      ) : (
+        <SafeAreaView style={{flex: 1}}>
+          <View
+            style={[
+              styles.container,
+              {backgroundColor: darkMode ? '#1B2559' : '#EBF1F7'},
+            ]}>
+            <View style={styles.content}>
               <View
                 style={[
-                  styles.searchContainer,
-                  {backgroundColor: darkMode ? '#0B1437' : '#F4F7FE'},
+                  styles.navbar,
+                  {
+                    paddingTop: 10,
+                    backgroundColor: darkMode ? '#111C44' : '#FFFFFF',
+                  },
                 ]}>
-                <Feather
-                  name="search"
-                  size={18}
-                  color={darkMode ? '#fff' : '#000'}
-                />
-                <TextInput
+                {/* BackBotton */}
+                <TouchableOpacity
+                  onPress={() => console.log('Back button pressed')}>
+                  <AntDesign
+                    name="left"
+                    size={14}
+                    color={darkMode ? '#fff' : '#000'}
+                    style={{width: 8}}
+                  />
+                </TouchableOpacity>
+                {/* Search Input */}
+                <View
                   style={[
-                    styles.searchInput,
-                    {color: darkMode ? '#fff' : '#000'},
-                  ]}
-                  placeholder="Search..."
-                  placeholderTextColor={darkMode ? '#fff' : '#666'}
-                />
-              </View>
-              <Text
-                style={[
-                  styles.title,
-                  {color: darkMode ? '#4A90E2' : '#4A90E2'},
-                ]}>
-                OnlyFriends
-              </Text>
-              <Dropdown
-                top={52}
-                right={10}
-                button={
+                    styles.searchContainer,
+                    {backgroundColor: darkMode ? '#0B1437' : '#F4F7FE'},
+                  ]}>
+                  <Feather
+                    name="search"
+                    size={18}
+                    color={darkMode ? '#fff' : '#000'}
+                  />
+                  <TextInput
+                    style={[
+                      styles.searchInput,
+                      {color: darkMode ? '#fff' : '#000'},
+                    ]}
+                    placeholder="Search..."
+                    placeholderTextColor={darkMode ? '#fff' : '#666'}
+                  />
+                </View>
+                {/* Logo */}
+                <Text
+                  style={[
+                    styles.title,
+                    {color: darkMode ? '#4A90E2' : '#4A90E2'},
+                  ]}>
+                  OnlyFriends
+                </Text>
+                {/* Notification DropDown */}
+                <Dropdown
+                  top={52}
+                  right={10}
+                  button={
                     <Icon
                       name="notifications-outline"
                       size={18}
                       color={darkMode ? '#fff' : '#000'}
                     />
-                }
-                children={
-                  <NotificationComponent
-                    notifications={notifications}
-                    darkMode={darkMode}
-                    clearAllNotifi={clearAllNotifi}
-                    delAllNotifi={delAllNotifi}
-                    notifictionBtn={notificationBtn}
-                  />
-                }
-              />
-             
-              <TouchableOpacity onPress={toggleTheme}>
-                {darkMode ? (
-                  <Feather name="sun" size={18} color="#fff" />
-                ) : (
-                  <FontAwesome name="moon-o" size={18} color="#000" />
-                )}
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  handleSignOutClick();
-                  console.log('Messages clicked');
-                }}>
-                <MaterialCommunityIcons
-                  name="message-processing-outline"
-                  size={18}
-                  color={darkMode ? '#fff' : '#000'}
+                  }
+                  children={
+                    <NotificationComponent
+                      notifications={notifications}
+                      darkMode={darkMode}
+                      clearAllNotifi={clearAllNotifi}
+                      delAllNotifi={delAllNotifi}
+                      notifictionBtn={notificationBtn}
+                    />
+                  }
                 />
-              </TouchableOpacity>
-              <Dropdown
-                top={52}
-                right={10}
-                button={
-                  <Image
-                    style={styles.profileImage}
-                    source={{uri: user?.ProfilePic}}
-                    alt={user?.UserName}
+                {/* ThemeChange */}
+                <TouchableOpacity onPress={toggleTheme}>
+                  {darkMode ? (
+                    <Feather name="sun" size={18} color="#fff" />
+                  ) : (
+                    <FontAwesome name="moon-o" size={18} color="#000" />
+                  )}
+                </TouchableOpacity>
+                {/* Message */}
+                <TouchableOpacity
+                  onPress={() => {
+                    handleSignOutClick();
+                    console.log('Messages clicked');
+                  }}>
+                  <MaterialCommunityIcons
+                    name="message-processing-outline"
+                    size={18}
+                    color={darkMode ? '#fff' : '#000'}
                   />
-                }
-                children={
-                  <View>
-                    <Text style={[styles.link, {marginTop: 0}]}>
-                      👋 Hey, {user?.UserName}
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() => navigation.navigate('Profile')}>
-                      <Text style={styles.link}>Profile Settings</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => navigation.navigate('SavedPosts')}>
-                      <Text style={styles.link}>Saved Posts</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={handleSignOutClick}>
-                      <Text style={styles.signOut}>Log Out</Text>
-                    </TouchableOpacity>
-                  </View>
-                }
-              />
+                </TouchableOpacity>
+                {/* Profile */}
+                <Dropdown
+                  top={52}
+                  right={10}
+                  button={
+                    <Image
+                      style={styles.profileImage}
+                      source={{uri: user?.ProfilePic}}
+                      alt={user?.UserName}
+                    />
+                  }
+                  children={
+                    <View>
+                      <Text style={[styles.link, {marginTop: 0}]}>
+                        👋 Hey, {user?.UserName}
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() => navigation.navigate('Profile')}>
+                        <Text style={styles.link}>Profile Settings</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => navigation.navigate('SavedPosts')}>
+                        <Text style={styles.link}>Saved Posts</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={handleSignOutClick}>
+                        <Text style={styles.signOut}>Log Out</Text>
+                      </TouchableOpacity>
+                    </View>
+                  }
+                />
+              </View>
+              <ScrollView
+                contentContainerStyle={styles.content}
+                showsVerticalScrollIndicator={false}>
+                {children}
+              </ScrollView>
             </View>
-            <ScrollView
-              contentContainerStyle={styles.content}
-              showsVerticalScrollIndicator={false}>
-              {children}
-            </ScrollView>
           </View>
-        </View>
-      </SafeAreaView>
+        </SafeAreaView>
+      )}
     </>
   );
 };
