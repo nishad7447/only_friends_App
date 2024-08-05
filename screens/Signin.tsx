@@ -28,7 +28,7 @@ export default function SignIn({ }: SignInProps) {
   const [passErr, setPassErr] = useState<string>('');
   const [formErr, setFormErr] = useState<string>('');
   const navigation = useNavigation<NavigationProp<any>>();
-
+  const { setUser } = useContext(ThemeContext);
   useFocusEffect(
     useCallback(() => {
     const checkToken = async () => {
@@ -78,6 +78,7 @@ export default function SignIn({ }: SignInProps) {
           console.log(res.data)
           AsyncStorage.setItem('jwtToken', JSON.stringify(res.data.token));
           AsyncStorage.setItem('user', JSON.stringify(res.data.user));
+          setUser(res.data.user);
           Toast.show({ type: 'success', text1: 'Login success' });
           navigation.navigate('Home');
         }
