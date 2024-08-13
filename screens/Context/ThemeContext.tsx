@@ -1,12 +1,14 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { Dimensions } from 'react-native';
 
 interface ThemeContextProps {
   darkMode: boolean;
   toggleTheme: () => void;
   user: any | null;
   setUser: (user: any | null) => void;
+  orientation: string;
+  setOrientation: (orientation: string) => void;
 }
 
 const ThemeContext = createContext<ThemeContextProps>({
@@ -14,11 +16,14 @@ const ThemeContext = createContext<ThemeContextProps>({
   toggleTheme: () => {},
   user: null,
   setUser: () => {},
+  orientation: 'portrait',
+  setOrientation: () => {},
 });
 
 const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [user, setUser] = useState<any | null>(null);
+  const [orientation, setOrientation] = useState<string>('portrait');
 
   useEffect(() => {
     const loadThemePreference = async () => {
@@ -46,7 +51,6 @@ const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
   };
 
-  // Optional: Load user details from AsyncStorage or an API if necessary
   useEffect(() => {
     const loadUserDetails = async () => {
       try {
@@ -76,10 +80,35 @@ const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
   };
 
-  console.log({ darkMode, user });
+  const determineOrientation = () => {
+    const { width, height } = Dimensions.get('window');
+    setOrientation(width > height ? 'landscape' : 'portrait');
+  };
+
+  useEffect(() => {
+    determineOrientation();
+    const subscription = Dimensions.addEventListener('change', determineOrientation);
+
+    return () => {
+      if (subscription) {
+        subscription.remove(); // Cleanup the event listener on unmount
+      }
+    };
+  }, []);
+
+  console.log({ darkMode, user, orientation });
 
   return (
-    <ThemeContext.Provider value={{ darkMode, toggleTheme, user, setUser: updateUser }}>
+    <ThemeContext.Provider
+      value={{
+        darkMode,
+        toggleTheme,
+        user,
+        setUser: updateUser,
+        orientation,
+        setOrientation,
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );

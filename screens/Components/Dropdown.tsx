@@ -40,7 +40,7 @@ const Dropdown: React.FC<DropdownProps> = ({ button, children, top, right }) => 
       top,
       right,
       backgroundColor: darkMode ? '#111C44' : '#FFFFFF',
-      shadowColor: '#000',
+      shadowColor: darkMode ?'#fff':'#000',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.8,
       shadowRadius: 2,

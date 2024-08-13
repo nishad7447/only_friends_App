@@ -1,13 +1,15 @@
-import React, { useContext } from 'react';
-import { TouchableOpacity, View, StyleSheet } from 'react-native';
+import React, {useContext} from 'react';
+import {TouchableOpacity, View, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import { ThemeContext } from '../Context/ThemeContext';
+import {ThemeContext} from '../Context/ThemeContext';
 
-const FixedPlugin: React.FC = () => {
-  const { darkMode, toggleTheme } = useContext(ThemeContext);
+const FixedPlugin: React.FC<{ orientation: string }> = ({ orientation }) => {
+  const {darkMode, toggleTheme} = useContext(ThemeContext);
 
   return (
-    <TouchableOpacity style={styles.button} onPress={toggleTheme}>
+    <TouchableOpacity
+      style={orientation === 'landscape' ? styles.btnLandscape : styles.button}
+      onPress={toggleTheme}>
       <View style={styles.iconContainer}>
         {darkMode ? (
           <Icon name="sun" size={24} color="white" />
@@ -20,6 +22,19 @@ const FixedPlugin: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  btnLandscape: {
+    position: 'absolute',
+    zIndex: 999,
+    bottom: 10,
+    right: 15,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#6a53ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
+  },
   button: {
     position: 'absolute',
     bottom: 30,

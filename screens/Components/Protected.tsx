@@ -11,11 +11,11 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
-  Button,
   StyleSheet,
   Image,
   StatusBar,
   SafeAreaView,
+  ScrollView,
 } from 'react-native';
 import {
   NavigationProp,
@@ -30,11 +30,11 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import {ScrollView} from 'react-native-gesture-handler';
 import {ThemeContext} from '../Context/ThemeContext';
 import Dropdown from './Dropdown';
 import NotificationComponent from './Notification';
 import Spinner from './Spinner';
+import BottomBar from './BottomBar';
 
 interface ProtectedProps {
   children: ReactNode;
@@ -43,7 +43,7 @@ interface ProtectedProps {
 const Protected: React.FC<ProtectedProps> = ({children}) => {
   const navigation = useNavigation<NavigationProp<any>>();
 
-  const {darkMode, toggleTheme} = useContext(ThemeContext);
+  const {darkMode, toggleTheme, orientation} = useContext(ThemeContext);
   const [loadingUser, setLoadingUser] = useState(true);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [user, setUser] = useState<any>();
@@ -78,26 +78,6 @@ const Protected: React.FC<ProtectedProps> = ({children}) => {
         } else {
           navigation.navigate('SignIn');
         }
-        /////////////////////////AsyncStorage ///////////////////
-        // console.log({jwtToken}, 'inProtected');
-        const getAllAsyncStorageItems = async () => {
-          try {
-            const keys = await AsyncStorage.getAllKeys();
-            const result = await AsyncStorage.multiGet(keys);
-
-            result.forEach(([key, value]) => {
-              console.log(
-                `||||||||||AsyncStorage====>${key}: ${value}|||||||||||`,
-              );
-            });
-
-            // return result;
-          } catch (error) {
-            console.error('Error fetching AsyncStorage items', error);
-          }
-        };
-        getAllAsyncStorageItems();
-        ///////////////////////////////////////////////////////////
       };
       checkToken();
     }, [navigation]),
@@ -120,23 +100,6 @@ const Protected: React.FC<ProtectedProps> = ({children}) => {
     };
     fetchNotifications();
   }, [updateUi]);
-
-  const handleSignOutClick = async () => {
-    await AsyncStorage.removeItem('jwtToken');
-    await AsyncStorage.removeItem('user');
-    try {
-      if (user) {
-        const res = await axiosInstance.get(
-          `${UserBaseURL}/logout/${user?._id}`,
-        );
-        if (res.data.message === 'Logout success') {
-          navigation.navigate('SignIn');
-        }
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
   const clearAllNotifi = async () => {
     try {
@@ -171,6 +134,54 @@ const Protected: React.FC<ProtectedProps> = ({children}) => {
     }
   };
 
+  const styles = StyleSheet.create({
+    container: {
+      backgroundColor: darkMode ? '#1B2559' : '#EBF1F7',
+      paddingTop: 40,
+      flex: 1,
+      paddingHorizontal: 4,
+    },
+    content: {
+      flex: 1,
+    },
+    navbar: {
+      paddingTop: 10,
+      backgroundColor: darkMode ? '#111C44' : '#FFFFFF',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 10,
+      borderRadius: 50,
+      shadowColor: '#000',
+      shadowOffset: {width: 0, height: 2},
+      shadowOpacity: 0.2,
+      shadowRadius: 2,
+      elevation: 4,
+    },
+    title: {
+      fontSize: 26,
+      fontWeight: 'bold',
+      textShadowColor: 'rgba(255, 255, 255, 0.8)', // White color with opacity
+      textShadowOffset: {width: 0, height: 0}, // No offset
+      textShadowRadius: 3,
+    },
+    searchContainer: {
+      backgroundColor: darkMode ? '#0B1437' : '#F4F7FE',
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderRadius: 20,
+      paddingHorizontal: 10,
+      width: '40%',
+    },
+    searchInput: {
+      color: darkMode ? '#fff' : '#000',
+      marginLeft: 5,
+      height: 40,
+      fontSize: 16,
+      width: '80%',
+    },
+  });
+
   return (
     <>
       <StatusBar
@@ -182,58 +193,44 @@ const Protected: React.FC<ProtectedProps> = ({children}) => {
         <Spinner />
       ) : (
         <SafeAreaView style={{flex: 1}}>
-          <View
-            style={[
-              styles.container,
-              {backgroundColor: darkMode ? '#1B2559' : '#EBF1F7'},
-            ]}>
-            <View style={styles.content}>
-              <View
+          <View style={styles.container}>
+            <View style={styles.navbar}>
+              {/* Search Input */}
+              <View style={styles.searchContainer}>
+                <Feather
+                  name="search"
+                  size={18}
+                  color={darkMode ? '#fff' : '#000'}
+                />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search..."
+                  placeholderTextColor={darkMode ? '#fff' : '#666'}
+                />
+              </View>
+              {/* Logo */}
+              <Text
                 style={[
-                  styles.navbar,
-                  {
-                    paddingTop: 10,
-                    backgroundColor: darkMode ? '#111C44' : '#FFFFFF',
-                  },
+                  styles.title,
+                  {color: darkMode ? '#4A90E2' : '#4A90E2'},
                 ]}>
-                {/* BackBotton */}
-                <TouchableOpacity
-                  onPress={() => console.log('Back button pressed')}>
-                  <AntDesign
-                    name="left"
-                    size={14}
-                    color={darkMode ? '#fff' : '#000'}
-                    style={{width: 8}}
-                  />
+                OnlyFriends
+              </Text>
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  justifyContent: 'space-evenly',
+                  width: 70,
+                }}>
+                {/* Theme change */}
+                <TouchableOpacity onPress={toggleTheme}>
+                  {darkMode ? (
+                    <Feather name="sun" size={18} color="#fff" />
+                  ) : (
+                    <FontAwesome name="moon-o" size={18} color="#000" />
+                  )}
                 </TouchableOpacity>
-                {/* Search Input */}
-                <View
-                  style={[
-                    styles.searchContainer,
-                    {backgroundColor: darkMode ? '#0B1437' : '#F4F7FE'},
-                  ]}>
-                  <Feather
-                    name="search"
-                    size={18}
-                    color={darkMode ? '#fff' : '#000'}
-                  />
-                  <TextInput
-                    style={[
-                      styles.searchInput,
-                      {color: darkMode ? '#fff' : '#000'},
-                    ]}
-                    placeholder="Search..."
-                    placeholderTextColor={darkMode ? '#fff' : '#666'}
-                  />
-                </View>
-                {/* Logo */}
-                <Text
-                  style={[
-                    styles.title,
-                    {color: darkMode ? '#4A90E2' : '#4A90E2'},
-                  ]}>
-                  OnlyFriends
-                </Text>
                 {/* Notification DropDown */}
                 <Dropdown
                   top={52}
@@ -255,147 +252,15 @@ const Protected: React.FC<ProtectedProps> = ({children}) => {
                     />
                   }
                 />
-                {/* ThemeChange */}
-                <TouchableOpacity onPress={toggleTheme}>
-                  {darkMode ? (
-                    <Feather name="sun" size={18} color="#fff" />
-                  ) : (
-                    <FontAwesome name="moon-o" size={18} color="#000" />
-                  )}
-                </TouchableOpacity>
-                {/* Message */}
-                <TouchableOpacity
-                  onPress={() => {
-                    handleSignOutClick();
-                    console.log('Messages clicked');
-                  }}>
-                  <MaterialCommunityIcons
-                    name="message-processing-outline"
-                    size={18}
-                    color={darkMode ? '#fff' : '#000'}
-                  />
-                </TouchableOpacity>
-                {/* Profile */}
-                <Dropdown
-                  top={52}
-                  right={10}
-                  button={
-                    <Image
-                      style={styles.profileImage}
-                      source={{uri: user?.ProfilePic}}
-                      alt={user?.UserName}
-                    />
-                  }
-                  children={
-                    <View>
-                      <Text style={[styles.link, {marginTop: 0}]}>
-                        👋 Hey, {user?.UserName}
-                      </Text>
-                      <TouchableOpacity
-                        onPress={() => navigation.navigate('Profile')}>
-                        <Text style={styles.link}>Profile Settings</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        onPress={() => navigation.navigate('SavedPosts')}>
-                        <Text style={styles.link}>Saved Posts</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={handleSignOutClick}>
-                        <Text style={styles.signOut}>Log Out</Text>
-                      </TouchableOpacity>
-                    </View>
-                  }
-                />
               </View>
-              <ScrollView
-                contentContainerStyle={styles.content}
-                showsVerticalScrollIndicator={false}>
-                {children}
-              </ScrollView>
             </View>
+            <View style={styles.content}>{children}</View>
           </View>
+          <BottomBar user={user} />
         </SafeAreaView>
       )}
     </>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    paddingTop: 30,
-    flex: 1,
-  },
-  content: {
-    flexGrow: 1,
-    padding: 10,
-  },
-  navbar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 10,
-    borderRadius: 50,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 4,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    textShadowColor: 'rgba(255, 255, 255, 0.8)', // White color with opacity
-    textShadowOffset: {width: 0, height: 0}, // No offset
-    textShadowRadius: 3,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 20,
-    paddingHorizontal: 10,
-  },
-  searchInput: {
-    marginLeft: 5,
-    height: 40,
-    fontSize: 16,
-    width: 70,
-  },
-  profileImage: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-  },
-
-  //dropdown
-  // profileImage: {
-  //   height: 40,
-  //   width: 40,
-  //   borderRadius: 20,
-  // },
-  dropdownContainer: {
-    padding: 10,
-    top: 48,
-    left: -180,
-    // width: 'maxcontent',
-  },
-  // dropdownContent: {
-  //   flex: 1,
-  //   flexDirection: 'column',
-  //   // justifyContent: 'start',
-  //   borderRadius: 20,
-  //   backgroundColor: 'white',
-  //   shadowColor: '#000',
-  //   shadowOffset: { width: 0, height: 2 },
-  //   shadowOpacity: 0.8,
-  //   shadowRadius: 2,
-  //   elevation: 5,
-  // },
-  link: {
-    color: 'gray',
-    marginTop: 10,
-  },
-  signOut: {
-    color: 'red',
-    marginTop: 10,
-  },
-});
 export default Protected;

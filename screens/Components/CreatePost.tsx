@@ -156,7 +156,6 @@ export default function CreatePost({setUpdateUI}: {setUpdateUI: any}) {
         borderRadius: 8,
         padding: 16,
         backgroundColor: darkMode ? '#0a1d43' : '#fff',
-        shadowColor: darkMode ? '#ccc' : '#000',
         shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.2,
         shadowRadius: 4,

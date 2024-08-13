@@ -12,6 +12,7 @@ import SignUp from './screens/SignUp';
 import Home from './screens/Home';
 import Protected from './screens/Components/Protected';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import Toast from 'react-native-toast-message';
 
 const Stack = createNativeStackNavigator();
 
@@ -57,7 +58,7 @@ const App = () => {
               />
               {/* <Stack.Screen name="ForgotPassword" component={ForgotPassword} options={{ headerShown: false }} /> */}
             </Stack.Navigator>
-            {/* <Toast /> */}
+            <Toast />
           </NavigationContainer>
         </GestureHandlerRootView>
       </ThemeProvider>

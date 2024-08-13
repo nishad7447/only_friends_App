@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   View,
   Text,
@@ -13,17 +13,17 @@ import {
   GoogleSigninButton,
 } from '@react-native-google-signin/google-signin';
 import axios from 'axios';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
+import {NavigationProp, useNavigation} from '@react-navigation/native';
 import Card from './Components/Card';
 import FixedPlugin from './Components/FixedPlugin';
-import { ThemeContext } from './Context/ThemeContext';
-import { UserBaseURL } from './Components/API';
+import {ThemeContext} from './Context/ThemeContext';
+import {UserBaseURL} from './Components/API';
+import { ScrollView } from 'react-native-gesture-handler';
 
 GoogleSignin.configure({
   webClientId:
     '969952852580-q77urroi4f3chu5hlua9nqpvq6vl1gje.apps.googleusercontent.com',
 });
-
 
 export default function SignUp() {
   const [email, setEmail] = useState('');
@@ -108,7 +108,6 @@ export default function SignUp() {
       });
   };
 
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setEmailErr('');
@@ -121,7 +120,7 @@ export default function SignUp() {
     return () => clearTimeout(timer);
   }, [emailErr, passErr, usernameErr, mobErr, formErr, otpErr]);
 
-  const { darkMode } = useContext(ThemeContext);
+  const {darkMode, orientation} = useContext(ThemeContext);
 
   const styles = StyleSheet.create({
     container: {
@@ -146,7 +145,7 @@ export default function SignUp() {
       borderRadius: 10,
       backgroundColor: darkMode ? '#0a1d43' : '#fff',
       shadowColor: darkMode ? '#ccc' : '#000',
-      shadowOffset: { width: 0, height: 1 },
+      shadowOffset: {width: 0, height: 1},
       shadowOpacity: 0.2,
       shadowRadius: 2,
       elevation: 10,
@@ -155,6 +154,12 @@ export default function SignUp() {
       fontSize: 24,
       fontWeight: 'bold',
       color: darkMode ? '#fff' : '#333',
+    },
+    titleLandscape: {
+      textAlign: 'center',
+      fontSize: 40,
+      fontWeight: 'bold',
+      color: '#1E90FF',
     },
     subtitle: {
       fontSize: 16,
@@ -216,97 +221,110 @@ export default function SignUp() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>OnlyFriends</Text>
-      </View>
-      <FixedPlugin />
-      <Card style={styles.card}>
-        <Text style={styles.title}>Sign Up</Text>
-        <Text style={styles.subtitle}>Welcome to OnlyFriends family</Text>
-
-        <GoogleSigninButton
-          onPress={() => {
-            GoogleSignin.signIn()
-              .then((data:any) => {
-                axios
-                  .post(`${UserBaseURL}/auth/googleSignUp`, data)
-                  .then(() => {
-                    Alert.alert('Success', 'Google signup success');
-                    navigation.navigate('SignIn');
-                  })
-                  .catch(err => {
-                    if (err.message === 'Request failed with status code 400') {
-                      setEmailErr('User already exist');
-                    } else {
-                      setEmailErr(err.message);
-                    }
-                  });
-              })
-              .catch(() => {
-                setEmailErr('Login Failed');
-              });
-          }}
-          style={styles.googleButton}
-        />
-
-        <View style={styles.separator}>
-          <View style={styles.separatorLine} />
-          <Text style={styles.separatorText}>or</Text>
-          <View style={styles.separatorLine} />
+      {orientation === 'portrait' ? (
+        <View style={styles.header}>
+          <Text style={styles.headerText}>OnlyFriends</Text>
         </View>
+      ) : (
+        ''
+      )}
+      <FixedPlugin orientation={orientation} />
+      <Card style={styles.card}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {orientation === 'landscape' ? (
+            <Text style={styles.titleLandscape}>OnlyFriends</Text>
+          ) : (
+            ''
+          )}
+          <Text style={styles.title}>Sign Up</Text>
+          <Text style={styles.subtitle}>Welcome to OnlyFriends family</Text>
 
-        <TextInput
-          style={[styles.input, emailErr ? styles.errorInput : null]}
-          placeholder="Full Name"
-          placeholderTextColor={darkMode ? '#969696' : '#747474'} // Placeholder color
-          value={name}
-          onChangeText={setName}
-        />
-        <TextInput
-          style={[styles.input, usernameErr ? styles.errorInput : null]}
-          placeholder="Username"
-          placeholderTextColor={darkMode ? '#969696' : '#747474'} // Placeholder color
-          value={username}
-          onChangeText={setUsername}
-        />
-        <TextInput
-          style={[styles.input, emailErr ? styles.errorInput : null]}
-          placeholder="mail@simmmple.com"
-          placeholderTextColor={darkMode ? '#969696' : '#747474'} // Placeholder color
-          value={email}
-          onChangeText={setEmail}
-        />
-        <TextInput
-          style={[styles.input, mobErr ? styles.errorInput : null]}
-          placeholder="9876543210"
-          placeholderTextColor={darkMode ? '#969696' : '#747474'} // Placeholder color
-          value={mobile}
-          keyboardType="numeric"
-          maxLength={10}
-          onChangeText={text => setMobile(text.replace(/\D/g, ''))}
-        />
-        <TextInput
-          style={[styles.input, passErr ? styles.errorInput : null]}
-          placeholder="Min. 3 characters"
-          placeholderTextColor={darkMode ? '#969696' : '#747474'} // Placeholder color
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-        {formErr || emailErr || usernameErr || passErr || mobErr ? (
-          <Text style={styles.errorText}>
-            {formErr || emailErr || usernameErr || passErr || mobErr}
-          </Text>
-        ) : null}
-        <TouchableOpacity style={styles.button} onPress={userSignupOtpSubmit}>
-          <Text style={styles.buttonText}>Sign Up</Text>
-        </TouchableOpacity>
-        {/* <Button title="Sign Up" onPress={userSignupOtpSend} /> */}
-        <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
-          <Text style={styles.subtitle}>
-            Already user? <Text style={styles.signInText}> Sign In</Text>
-          </Text>
-        </TouchableOpacity>
+          <GoogleSigninButton
+            onPress={() => {
+              GoogleSignin.signIn()
+                .then((data: any) => {
+                  axios
+                    .post(`${UserBaseURL}/auth/googleSignUp`, data)
+                    .then(() => {
+                      Alert.alert('Success', 'Google signup success');
+                      navigation.navigate('SignIn');
+                    })
+                    .catch(err => {
+                      if (
+                        err.message === 'Request failed with status code 400'
+                      ) {
+                        setEmailErr('User already exist');
+                      } else {
+                        setEmailErr(err.message);
+                      }
+                    });
+                })
+                .catch(() => {
+                  setEmailErr('Login Failed');
+                });
+            }}
+            style={styles.googleButton}
+          />
+
+          <View style={styles.separator}>
+            <View style={styles.separatorLine} />
+            <Text style={styles.separatorText}>or</Text>
+            <View style={styles.separatorLine} />
+          </View>
+
+          <TextInput
+            style={[styles.input, emailErr ? styles.errorInput : null]}
+            placeholder="Full Name"
+            placeholderTextColor={darkMode ? '#969696' : '#747474'} // Placeholder color
+            value={name}
+            onChangeText={setName}
+          />
+          <TextInput
+            style={[styles.input, usernameErr ? styles.errorInput : null]}
+            placeholder="Username"
+            placeholderTextColor={darkMode ? '#969696' : '#747474'} // Placeholder color
+            value={username}
+            onChangeText={setUsername}
+          />
+          <TextInput
+            style={[styles.input, emailErr ? styles.errorInput : null]}
+            placeholder="mail@simmmple.com"
+            placeholderTextColor={darkMode ? '#969696' : '#747474'} // Placeholder color
+            value={email}
+            onChangeText={setEmail}
+          />
+          <TextInput
+            style={[styles.input, mobErr ? styles.errorInput : null]}
+            placeholder="9876543210"
+            placeholderTextColor={darkMode ? '#969696' : '#747474'} // Placeholder color
+            value={mobile}
+            keyboardType="numeric"
+            maxLength={10}
+            onChangeText={text => setMobile(text.replace(/\D/g, ''))}
+          />
+          <TextInput
+            style={[styles.input, passErr ? styles.errorInput : null]}
+            placeholder="Min. 3 characters"
+            placeholderTextColor={darkMode ? '#969696' : '#747474'} // Placeholder color
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+          {formErr || emailErr || usernameErr || passErr || mobErr ? (
+            <Text style={styles.errorText}>
+              {formErr || emailErr || usernameErr || passErr || mobErr}
+            </Text>
+          ) : null}
+          <TouchableOpacity style={styles.button} onPress={userSignupOtpSubmit}>
+            <Text style={styles.buttonText}>Sign Up</Text>
+          </TouchableOpacity>
+          {/* <Button title="Sign Up" onPress={userSignupOtpSend} /> */}
+          <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
+            <Text style={styles.subtitle}>
+              Already user? <Text style={styles.signInText}> Sign In</Text>
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
       </Card>
     </View>
   );
