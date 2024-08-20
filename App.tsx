@@ -1,16 +1,21 @@
 import 'react-native-gesture-handler';
 import 'react-native-screens';
 import 'react-native-safe-area-context';
-import React, {ReactNode, useContext, useEffect} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {StatusBar, StyleSheet} from 'react-native';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
-import SignIn from './screens/Signin';
 import {ThemeContext, ThemeProvider} from './screens/Context/ThemeContext';
+import SignIn from './screens/Signin';
 import SignUp from './screens/SignUp';
-import Home from './screens/Home';
 import Protected from './screens/Components/Protected';
+import Home from './screens/Home';
+import ProfileSettings from './screens/ProfileSettings';
+import SavedPosts from './screens/SavedPosts';
+import Profile from './screens/Profile';
+import Settings from './screens/Settings';
+import SponsoredAd from './screens/SponsoredAd';
+import Chat from './screens/Chat';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
 
@@ -50,10 +55,39 @@ const App = () => {
                 component={SignUp}
                 options={{headerShown: false}}
               />
-              {/* Add other screens here */}
               <Stack.Screen
                 name="Home"
                 component={withProtected(Home)}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="ProfileSettings"
+                component={withProtected(ProfileSettings)}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="SavedPosts"
+                component={withProtected(SavedPosts)}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="Profile"
+                component={withProtected(Profile)}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="Settings"
+                component={withProtected(Settings)}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="SponsoredAd"
+                component={withProtected(SponsoredAd)}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="Chat"
+                component={withProtected(Chat)}
                 options={{headerShown: false}}
               />
               {/* <Stack.Screen name="ForgotPassword" component={ForgotPassword} options={{ headerShown: false }} /> */}

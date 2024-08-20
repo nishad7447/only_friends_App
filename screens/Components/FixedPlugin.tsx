@@ -1,6 +1,7 @@
 import React, {useContext} from 'react';
 import {TouchableOpacity, View, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ThemeContext} from '../Context/ThemeContext';
 
 const FixedPlugin: React.FC<{ orientation: string }> = ({ orientation }) => {
@@ -12,7 +13,7 @@ const FixedPlugin: React.FC<{ orientation: string }> = ({ orientation }) => {
       onPress={toggleTheme}>
       <View style={styles.iconContainer}>
         {darkMode ? (
-          <Icon name="sun" size={24} color="white" />
+          <MaterialCommunityIcons name="white-balance-sunny" size={24} color="white" />
         ) : (
           <Icon name="moon" size={24} color="white" />
         )}

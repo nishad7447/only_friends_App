@@ -9,13 +9,10 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
   StyleSheet,
   Image,
   StatusBar,
   SafeAreaView,
-  ScrollView,
 } from 'react-native';
 import {
   NavigationProp,
@@ -26,10 +23,7 @@ import {UserBaseURL} from './API';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {axiosInstance} from './AxiosConfig';
 import Icon from 'react-native-vector-icons/Ionicons';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
-import AntDesign from 'react-native-vector-icons/AntDesign';
 import {ThemeContext} from '../Context/ThemeContext';
 import Dropdown from './Dropdown';
 import NotificationComponent from './Notification';
@@ -224,13 +218,13 @@ const Protected: React.FC<ProtectedProps> = ({children}) => {
                   width: 70,
                 }}>
                 {/* Theme change */}
-                <TouchableOpacity onPress={toggleTheme}>
+                {/* <TouchableOpacity onPress={toggleTheme}>
                   {darkMode ? (
-                    <Feather name="sun" size={18} color="#fff" />
+                    <MaterialCommunityIcons name="white-balance-sunny" size={18} color="#fff" />
                   ) : (
                     <FontAwesome name="moon-o" size={18} color="#000" />
                   )}
-                </TouchableOpacity>
+                </TouchableOpacity> */}
                 {/* Notification DropDown */}
                 <Dropdown
                   top={52}
