@@ -60,7 +60,7 @@ const SponsoredAd = () => {
   };
 
   const handleDateChange = (itemValue: any) => {
-    console.log({itemValue});
+
     if (itemValue === '-1') {
       setSelectedDate('');
     } else {

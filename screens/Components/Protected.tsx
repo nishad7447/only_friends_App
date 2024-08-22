@@ -153,6 +153,7 @@ const Protected: React.FC<ProtectedProps> = ({children}) => {
       elevation: 4,
     },
     title: {
+      marginLeft:7,
       fontSize: 26,
       fontWeight: 'bold',
       textShadowColor: 'rgba(255, 255, 255, 0.8)', // White color with opacity
@@ -165,7 +166,7 @@ const Protected: React.FC<ProtectedProps> = ({children}) => {
       alignItems: 'center',
       borderRadius: 20,
       paddingHorizontal: 10,
-      width: '40%',
+      width: '50%',
     },
     searchInput: {
       color: darkMode ? '#fff' : '#000',

@@ -14,12 +14,9 @@ import {UserBaseURL} from './Components/API';
 import {axiosInstance} from './Components/AxiosConfig';
 import {RefreshControl, TouchableOpacity} from 'react-native-gesture-handler';
 import {ThemeContext} from './Context/ThemeContext';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import Card from './Components/Card';
 import CreatePost from './Components/CreatePost';
+import {NavigationProp, useNavigation} from '@react-navigation/native';
+import Posts from './Components/Posts';
 
 interface User {
   _id: string;
@@ -46,21 +43,18 @@ const Spinner: React.FC = () => (
 );
 
 const Home: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<any>>();
   const [loadingUser, setLoadingUser] = useState<boolean>(true);
   const [posts, setPosts] = useState<Post[]>([]);
-  const [suggestedUsers, setSuggestedUsers] = useState<User[]>([]);
+  const [ad, setAd] = useState<Post[]>([]);
   const [updateUI, setUpdateUI] = useState<boolean>(false);
-  const [ad, setAd] = useState<any>(null); // Adjust type if needed
-  const [numPosts, setNumPosts] = useState<number | null>(null);
-  const [followings, setFollowings] = useState<User[]>([]);
-  const [clickedPostId, setClickedPostId] = useState<number | null>(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
   const [editModalVisible, setEditModalVisible] = useState<boolean>(false);
   const [editPostContent, setEditPostContent] = useState<string>('');
-  const [editPostId, setEditPostId] = useState<string | null>(null);
   const [reportModalVisible, setReportModalVisible] = useState<boolean>(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [editPostId, setEditPostId] = useState<string | null>(null);
   const {darkMode, user} = useContext(ThemeContext);
 
   const handleRefresh = () => {
@@ -73,10 +67,7 @@ const Home: React.FC = () => {
         .get(`${UserBaseURL}/getAllPosts`)
         .then(res => {
           setPosts(res.data.posts);
-          setSuggestedUsers(res.data.users);
           setAd(res.data.randomAd);
-          setNumPosts(res.data.NumPosts);
-          setFollowings(res.data.UserFollowersFollowings?.Followings);
         })
         .catch(error => {
           console.error(error);
@@ -88,51 +79,7 @@ const Home: React.FC = () => {
         });
     };
     fetchData();
-  }, [updateUI,isRefreshing]);
-
-  const handleLikeClick = (postId: string) => {
-    axiosInstance
-      .get(`${UserBaseURL}/like/${postId}`)
-      .then(res => {
-        // toast.success(res?.data.message);
-        setUpdateUI(prev => !prev);
-      })
-      .catch(error => {
-        console.error(error);
-        // toast.error('An error occurred.');
-      });
-  };
-
-  const handleSaveClick = (postId: string) => {
-    axiosInstance
-      .get(`${UserBaseURL}/savedpost/${postId}`)
-      .then(res => {
-        // toast.success(res?.data.message);
-        setUpdateUI(prev => !prev);
-      })
-      .catch(error => {
-        console.error(error);
-        // toast.error('An error occurred.');
-      });
-  };
-
-  const formatPostDate = (date: string) => {
-    const now = moment();
-    const postDate = moment(date);
-    if (now.diff(postDate, 'seconds') < 60) {
-      return 'Just now';
-    } else if (now.diff(postDate, 'days') === 0) {
-      return postDate.fromNow();
-    } else if (now.diff(postDate, 'days') === 1) {
-      return 'Yesterday';
-    } else if (now.diff(postDate, 'days') <= 4) {
-      return `${now.diff(postDate, 'days')} days ago`;
-    } else if (now.diff(postDate, 'years') === 0) {
-      return postDate.format('MMMM D');
-    } else {
-      return postDate.format('LL');
-    }
-  };
+  }, [updateUI, isRefreshing]);
 
   const handleEditPost = () => {
     if (editPostId) {
@@ -151,10 +98,6 @@ const Home: React.FC = () => {
           // toast.error('An error occurred.');
         });
     }
-  };
-
-  const handleCommentClick = (postId: number) => {
-    setClickedPostId(postId);
   };
 
   return (
@@ -178,99 +121,13 @@ const Home: React.FC = () => {
             ) : (
               posts &&
               posts.map((post: any) => (
-                <Card
-                  key={post._id}
-                  style={{
-                    marginBottom: 16,
-                    borderRadius: 8,
-                    padding: 16,
-                    backgroundColor: darkMode ? '#0a1d43' : '#fff',
-                    shadowOffset: {width: 0, height: 2},
-                    shadowOpacity: 0.2,
-                    shadowRadius: 4,
-                    elevation: 10,
-                  }}>
-                  <View style={styles.header}>
-                    <Image
-                      source={{uri: post?.userId?.ProfilePic}}
-                      style={styles.avatar}
-                    />
-                    <View>
-                      <Text
-                        style={[
-                          styles.username,
-                          {color: darkMode ? 'white' : 'black'},
-                        ]}>
-                        {post?.userId?.UserName}
-                      </Text>
-                      <Text style={styles.date}>
-                        {formatPostDate(post?.createdAt)}
-                      </Text>
-                    </View>
-                  </View>
-                  {post?.fileUrl && (
-                    <Image
-                      source={{uri: post?.fileUrl}}
-                      style={styles.postImage}
-                    />
-                  )}
-                  <Text
-                    style={[
-                      styles.content,
-                      {color: darkMode ? 'white' : 'black'},
-                    ]}>
-                    {post?.content}
-                  </Text>
-                  <View style={styles.actions}>
-                    <TouchableOpacity
-                      onPress={() => {
-                        console.log('Like clicked');
-                        handleLikeClick(post._id);
-                      }}>
-                      {post?.likes.includes(user?._id) ? (
-                        <AntDesign name="heart" size={26} color={'red'} />
-                      ) : (
-                        <AntDesign name="hearto" size={26} color={'#A3AED0'} />
-                      )}
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => {
-                        console.log('comments clicked');
-                        handleCommentClick(post._id);
-                      }}>
-                      <FontAwesome
-                        name="commenting-o"
-                        size={26}
-                        color={'#A3AED0'}
-                      />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => {
-                        console.log('Saved clicked');
-                        handleSaveClick(post._id);
-                      }}>
-                      {post.savedBy?.includes(user?._id) ? (
-                        <FontAwesome
-                          name="bookmark"
-                          size={26}
-                          color={'black'}
-                        />
-                      ) : (
-                        <FontAwesome
-                          name="bookmark-o"
-                          size={26}
-                          color={'#A3AED0'}
-                        />
-                      )}
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => {
-                        console.log('comments clicked');
-                      }}>
-                      <MaterialIcons name="share" size={26} color={'#A3AED0'} />
-                    </TouchableOpacity>
-                  </View>
-                </Card>
+                  <Posts
+                    key={post._id}
+                    post={post}
+                    setUpdateUI={setUpdateUI}
+                    userId={''}
+                    loggedInUser={user}
+                  />
               ))
             )}
           </View>

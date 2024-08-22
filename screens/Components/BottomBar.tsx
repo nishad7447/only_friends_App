@@ -95,8 +95,7 @@ const BottomBar: React.FC<{user: any}> = ({user}) => {
           selected === 'Profile' && styles.selectedContainer,
         ]}
         onPress={() => {
-          console.log(user._id);
-          navigation.navigate('Profile', {userId: user._id});
+          navigation.navigate('Profile', {userId: ''});
         }}>
         <Animated.View
           style={{transform: [{rotate: rotate(profileRotateAnim)}]}}>

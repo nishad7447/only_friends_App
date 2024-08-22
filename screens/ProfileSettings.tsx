@@ -90,7 +90,6 @@ const ProfileSettings = () => {
       occupation: '',
       bio: '',
     };
-    console.log(email.trim().length <= 0,email)
     // Email validation
     if (email && !isEmailValid(email)) {
       errors.email = 'Please enter a valid email address.';
@@ -124,6 +123,7 @@ const ProfileSettings = () => {
     if (Object.keys(errors).length > 0) {
       setFormErr({...errors});
       Object.values(errors).forEach(errorMessage => {
+        console.log({errorMessage});
         Toast.show({
           text1: errorMessage,
           type: 'error',
@@ -132,15 +132,21 @@ const ProfileSettings = () => {
     }
 
     console.log(formErr);
-    const formData = new FormData();
-    formData.append('Name', name);
-    formData.append('Email', email);
-    formData.append('Bio', bio);
-    formData.append('Location', location);
-    formData.append('Occupation', occupation);
+    const formData:any = {
+      Name: name,
+      Email: email,
+      Bio: bio,
+      Location: location,
+      Occupation: occupation,
+    };
     if (attachedImage) {
-      formData.append('file', attachedImage);
+      formData.file = {
+        uri: attachedImage.uri, // URI of the image
+        type: attachedImage.type || 'application/octet-stream', // MIME type
+        name: attachedImage.fileName || 'photo.jpg', // Filename
+      };
     }
+    console.log(formData, 'formData');
     axiosInstance
       .put(`${UserBaseURL}/editUser`, formData)
       .then(res => {

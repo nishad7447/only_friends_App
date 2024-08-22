@@ -44,7 +44,7 @@ const App = () => {
       <ThemeProvider>
         <GestureHandlerRootView style={{flex: 1}}>
           <NavigationContainer>
-            <Stack.Navigator initialRouteName="SignIn">
+            <Stack.Navigator initialRouteName="Home">
               <Stack.Screen
                 name="SignIn"
                 component={SignIn}

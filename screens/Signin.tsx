@@ -253,7 +253,6 @@ export default function SignIn({}: SignInProps) {
     },
   });
 
-  console.log({orientation});
 
   return (
     <View style={styles.container}>
