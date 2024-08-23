@@ -1,11 +1,9 @@
-import React, {useState, useRef, useContext, useEffect} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {
   View,
   Text,
   Image,
   StyleSheet,
-  FlatList,
-  Modal,
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
@@ -15,10 +13,8 @@ import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {axiosInstance} from './Components/AxiosConfig';
 import {UserBaseURL} from './Components/API';
 import Toast from 'react-native-toast-message';
-import moment from 'moment';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import CreatePost from './Components/CreatePost';
-
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Posts from './Components/Posts';
@@ -50,15 +46,12 @@ const Profile = ({route}: any) => {
   const {userId} = route.params;
   const {darkMode, user} = useContext(ThemeContext);
   const loggedInUser = user;
-  // const [openDropdowns, setOpenDropdowns] = useState({});
   const [loadingUser, setLoadingUser] = useState<boolean>(true);
   const [posts, setPosts] = useState([]);
   const [users, setUser] = useState(user);
   const [suggestedUsers, setSuggestedUsers] = useState([]);
   const [updateUI, setUpdateUI] = useState(false);
   const navigation = useNavigation<NavigationProp<any>>();
-
-  // const dropdownRef = useRef(null);
 
   useEffect(() => {
     if (userId) {
@@ -114,30 +107,6 @@ const Profile = ({route}: any) => {
         setLoadingUser(false);
       });
   }, [updateUI, userId]);
-
-  //edit modal
-  const [editModal, setEditModal] = useState(false);
-  const [editPostId, setEditPostId] = useState<number | null>(null);
-  const [editPostContent, setEditPostContent] = useState('');
-  const showEditModal = (postId: number, content: string) => {
-    setEditPostId(postId);
-    setEditPostContent(content);
-    setEditModal(true);
-  };
-  const editModalCancel = () => {
-    setEditModal(false);
-  };
-
-  //share
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [sharePostId, setSharePostId] = useState<number | null>(null);
-  const toggleModal = (postId: number) => {
-    setShowShareModal(true);
-    setSharePostId(postId);
-  };
-  const closeShareModal = () => {
-    setShowShareModal(false);
-  };
 
   const followORunfollow = (link: string, friendId: number) => {
     axiosInstance
@@ -211,6 +180,8 @@ const Profile = ({route}: any) => {
       color: 'gray',
     },
     userBio: {
+      maxWidth: 100,
+      maxHeight: 70,
       marginBottom: 10,
     },
     userDetailsRow: {
@@ -219,6 +190,7 @@ const Profile = ({route}: any) => {
       marginBottom: 10,
     },
     userDetailText: {
+      marginLeft: 4,
       color: 'gray',
     },
     stats: {
@@ -307,30 +279,42 @@ const Profile = ({route}: any) => {
                     </Text>
                   </View>
                 </View>
+                <Text style={styles.userBio}>
+                  {users?.Bio ? users?.Bio : ''}
+                </Text>
                 <View
                   style={{
                     display: 'flex',
-                    flexDirection: 'row',
-                    backgroundColor: 'red',
+                    flexDirection: 'column',
                   }}>
                   <View style={styles.userDetailsRow}>
-                    <MaterialCommunityIcons name="briefcase-variant-outline" />
-                    <Text style={styles.userDetailText}>
-                      {users?.Occupation ? users?.Occupation : ''}
-                    </Text>
+                    {users?.Occupation ? (
+                      <>
+                        <SimpleLineIcons
+                          name="briefcase"
+                          size={13}
+                          color="gray"
+                        />
+                        <Text style={styles.userDetailText}>
+                          {users?.Occupation ? users?.Occupation : ''}
+                        </Text>
+                      </>
+                    ) : (
+                      ''
+                    )}
                   </View>
                   <View style={styles.userDetailsRow}>
-                    <Entypo name="location-pin" />
-                    <Text style={styles.userDetailText}>
-                      {users?.Location ? users?.Location : ''}
-                    </Text>
+                    {users?.Location ? (
+                      <>
+                        <Entypo name="location-pin" size={16} color="gray" />
+                        <Text style={styles.userDetailText}>
+                          {users?.Location ? users?.Location : ''}
+                        </Text>
+                      </>
+                    ) : (
+                      ''
+                    )}
                   </View>
-                </View>
-                <View style={styles.userDetailsRow}>
-                  <MaterialCommunityIcons name="bio" />
-                  <Text style={styles.userBio}>
-                    {users?.Bio ? users?.Bio : ''}
-                  </Text>
                 </View>
               </View>
               {/* followers,following,post */}
@@ -477,48 +461,6 @@ const Profile = ({route}: any) => {
           </View>
         </>
       )}
-      {/* {clickedPostId && <CommentModal postId={clickedPostId} closeModal={closeModal} />}
-            {deleteModal && (
-                <ModalComponent
-                    Heading="Delete Post"
-                    content="Are you sure to delete this post?"
-                    onCancel={deleteModalCancel}
-                    onConfirm={deleteModalConfirm}
-                />
-            )}
-            {reportModal && (
-                <ModalComponent
-                    Heading="Report Post"
-                    content={
-                        <View>
-                            {reportOptions.map(option => (
-                                <View key={option.value}>
-                                    <Text>
-                                        <input
-                                            type="radio"
-                                            name="reportOption"
-                                            value={option.value}
-                                            onClick={() => selectedReason(option.label)}
-                                        />
-                                        {option.label}
-                                    </Text>
-                                </View>
-                            ))}
-                        </View>
-                    }
-                    onCancel={reportModalCancel}
-                    onConfirm={reportModalConfirm}
-                />
-            )}
-            {showShareModal && <ShareModal isOpen={showShareModal} onClose={closeShareModal} id={sharePostId} />}
-            {editModal && (
-                <EditModal
-                    onCancel={editModalCancel}
-                    setUpdateUI={setUpdateUI}
-                    editPostId={editPostId}
-                    editPostContent={editPostContent}
-                />
-            )} */}
     </ScrollView>
   );
 };

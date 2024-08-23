@@ -1,6 +1,6 @@
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import React, {createContext, useState, useEffect, ReactNode} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Dimensions } from 'react-native';
+import {Dimensions} from 'react-native';
 
 interface ThemeContextProps {
   darkMode: boolean;
@@ -20,7 +20,7 @@ const ThemeContext = createContext<ThemeContextProps>({
   setOrientation: () => {},
 });
 
-const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+const ThemeProvider: React.FC<{children: ReactNode}> = ({children}) => {
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [user, setUser] = useState<any | null>(null);
   const [orientation, setOrientation] = useState<string>('portrait');
@@ -29,7 +29,6 @@ const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const loadThemePreference = async () => {
       try {
         const storedPreference = await AsyncStorage.getItem('darkMode');
-        console.log({ storedPreference });
         if (storedPreference !== null) {
           setDarkMode(JSON.parse(storedPreference));
         }
@@ -55,7 +54,6 @@ const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const loadUserDetails = async () => {
       try {
         const storedUser = await AsyncStorage.getItem('user');
-        console.log({ storedUser });
         if (storedUser !== null) {
           setUser(JSON.parse(storedUser));
         }
@@ -81,13 +79,16 @@ const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   const determineOrientation = () => {
-    const { width, height } = Dimensions.get('window');
+    const {width, height} = Dimensions.get('window');
     setOrientation(width > height ? 'landscape' : 'portrait');
   };
 
   useEffect(() => {
     determineOrientation();
-    const subscription = Dimensions.addEventListener('change', determineOrientation);
+    const subscription = Dimensions.addEventListener(
+      'change',
+      determineOrientation,
+    );
 
     return () => {
       if (subscription) {
@@ -95,8 +96,6 @@ const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       }
     };
   }, []);
-
-  console.log({ darkMode, user, orientation });
 
   return (
     <ThemeContext.Provider
@@ -107,11 +106,10 @@ const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         setUser: updateUser,
         orientation,
         setOrientation,
-      }}
-    >
+      }}>
       {children}
     </ThemeContext.Provider>
   );
 };
 
-export { ThemeProvider, ThemeContext };
+export {ThemeProvider, ThemeContext};

@@ -1,4 +1,4 @@
-import React, {useContext, useRef, useState} from 'react';
+import React, {useContext, useMemo, useRef, useState} from 'react';
 import {axiosInstance} from './AxiosConfig';
 import {UserBaseURL} from './API';
 import Toast from 'react-native-toast-message';
@@ -12,8 +12,12 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Video from 'react-native-video';
-import Dropdown from './Dropdown';
+import CustomModal from './Modal';
+import {RadioGroup} from 'react-native-radio-buttons-group';
+import EditModal from './EditModal';
+import Share from 'react-native-share';
+import CommentModal from './CommentModel';
+import VideoPlayer from './VideoComponent';
 
 interface PostsProps {
   post: any;
@@ -29,10 +33,10 @@ const Posts: React.FC<PostsProps> = ({
   loggedInUser,
 }) => {
   const navigation = useNavigation<NavigationProp<any>>();
-  const [clickedPostId, setClickedPostId] = useState<number | null>(null);
+  const [clickedPostId, setClickedPostId] = useState<string | null>(null);
   const {darkMode} = useContext(ThemeContext);
 
-  const handleCommentClick = (postId: number) => {
+  const handleCommentClick = (postId: string) => {
     setClickedPostId(postId);
   };
 
@@ -41,7 +45,7 @@ const Posts: React.FC<PostsProps> = ({
   };
 
   //like
-  const handleLikeClick = (postId: number) => {
+  const handleLikeClick = (postId: string) => {
     axiosInstance
       .get(`${UserBaseURL}/like/${postId}`)
       .then(res => {
@@ -114,24 +118,36 @@ const Posts: React.FC<PostsProps> = ({
   //post settings
   const [openDropdowns, setOpenDropdowns] = useState<any>({});
   const handleDropdownToggle = (postId: string) => {
-    console.log({postId});
     setOpenDropdowns((prevOpenDropdowns: any) => ({
       ...prevOpenDropdowns,
       [postId]: !prevOpenDropdowns[postId],
     }));
   };
   const dropdownRef = useRef(null);
-  // useEffect(() => {
-  //     const handleOutsideClick = (event:any) => {
-  //         if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-  //             setOpenDropdowns({});
-  //         }
-  //     };
-  //     document.addEventListener('mousedown', handleOutsideClick);
-  //     return () => {
-  //         document.removeEventListener('mousedown', handleOutsideClick);
-  //     };
-  // }, []);
+
+  const handleGoToUser = (userId: number) => {
+    navigation.navigate('Profile', {userId});
+  };
+
+  //moment.js config
+  const formatPostDate = (date: string) => {
+    const now = moment();
+    const postDate = moment(date);
+
+    if (now.diff(postDate, 'seconds') < 60) {
+      return 'Just now';
+    } else if (now.diff(postDate, 'days') === 0) {
+      return postDate.fromNow(); // Display "x minutes ago", "an hour ago", etc.
+    } else if (now.diff(postDate, 'days') === 1) {
+      return 'Yesterday';
+    } else if (now.diff(postDate, 'days') <= 4) {
+      return `${now.diff(postDate, 'days')} days ago`; // Display "X days ago" for posts within the last 4 days
+    } else if (now.diff(postDate, 'years') === 0) {
+      return postDate.format('MMMM D'); // Display "Month Day" for posts within the current year
+    } else {
+      return postDate.format('LL'); // Display "Month Day, Year" for posts older than a year
+    }
+  };
 
   //deleteMODAL
   const [deleteModal, setDeleteModal] = useState(false);
@@ -186,19 +202,22 @@ const Posts: React.FC<PostsProps> = ({
     setReportModal(false);
   };
 
-  const reportOptions = [
-    {label: 'Inappropriate content', value: 'inappropriate'},
-    {label: 'Spam', value: 'spam'},
-    {label: 'Hate speech', value: 'hate_speech'},
-    // Add more report options as needed
-  ];
+  const reportOptions = useMemo(
+    () => [
+      {id: '1', label: 'Inappropriate content', value: 'inappropriate'},
+      {id: '2', label: 'Spam', value: 'spam'},
+      {id: '3', label: 'Hate speech', value: 'hate_speech'},
+    ],
+    [],
+  );
 
-  const [selectedOpt, setSelecetedOpt] = useState<string | null>(null);
-  const selectedReason = (reason: string) => {
-    setSelecetedOpt(reason);
-  };
+  const [selectedOpt, setSelecetedOpt] = useState<any>(null);
 
   const reportModalConfirm = () => {
+    if (!selectedOpt) {
+      Toast.show({type: 'error', text1: 'Please Select a option'});
+      return;
+    }
     setReportModal(false);
     axiosInstance
       .put(`${UserBaseURL}/reportPost`, {
@@ -230,28 +249,17 @@ const Posts: React.FC<PostsProps> = ({
       });
   };
 
-  const handleGoToUser = (userId: number) => {
-    navigation.navigate('Profile', {userId});
+  //edit modal
+  const [editModal, setEditModal] = useState(false);
+  const [editPostId, setEditPostId] = useState<string | null>(null);
+  const [editPostContent, setEditPostContent] = useState('');
+  const showEditModal = (postId: string, content: string) => {
+    setEditPostId(postId);
+    setEditPostContent(content);
+    setEditModal(true);
   };
-
-  //moment.js config
-  const formatPostDate = (date: string) => {
-    const now = moment();
-    const postDate = moment(date);
-
-    if (now.diff(postDate, 'seconds') < 60) {
-      return 'Just now';
-    } else if (now.diff(postDate, 'days') === 0) {
-      return postDate.fromNow(); // Display "x minutes ago", "an hour ago", etc.
-    } else if (now.diff(postDate, 'days') === 1) {
-      return 'Yesterday';
-    } else if (now.diff(postDate, 'days') <= 4) {
-      return `${now.diff(postDate, 'days')} days ago`; // Display "X days ago" for posts within the last 4 days
-    } else if (now.diff(postDate, 'years') === 0) {
-      return postDate.format('MMMM D'); // Display "Month Day" for posts within the current year
-    } else {
-      return postDate.format('LL'); // Display "Month Day, Year" for posts older than a year
-    }
+  const editModalCancel = () => {
+    setEditModal(false);
   };
 
   const styles = StyleSheet.create({
@@ -316,7 +324,8 @@ const Posts: React.FC<PostsProps> = ({
     },
     dropdown: {
       position: 'absolute',
-      top: 50,
+      zIndex: 999,
+      top: 40,
       right: 0,
       backgroundColor: 'white',
       borderRadius: 5,
@@ -383,19 +392,6 @@ const Posts: React.FC<PostsProps> = ({
       justifyContent: 'center',
       alignItems: 'center',
     },
-    //   dropdown: {
-    //     position: 'absolute',
-    //     top: '10%', // Adjust based on the button's position
-    //     right: 0,
-    //     backgroundColor: 'white',
-    //     borderRadius: 8,
-    //     padding: 10,
-    //     shadowColor: '#000',
-    //     shadowOffset: { width: 0, height: 2 },
-    //     shadowOpacity: 0.8,
-    //     shadowRadius: 2,
-    //     elevation: 5,
-    //   },
     option: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -429,24 +425,7 @@ const Posts: React.FC<PostsProps> = ({
         />
       );
     } else if (extension === 'mp4') {
-      return (
-        // <></>
-        <Video
-          source={{uri: fileUrl}}
-          style={{
-            width: '100%',
-            height: 200,
-            borderRadius: 8,
-            marginBottom: 12,
-          }}
-          controls={true}
-          onError={error => {
-            console.log('Video error:', error);
-          }}
-          paused={false}
-          repeat={true}
-        />
-      );
+      return <VideoPlayer fileUrl={fileUrl} />;
     } else if (extension === 'mp3') {
       return (
         <></>
@@ -455,30 +434,6 @@ const Posts: React.FC<PostsProps> = ({
     } else {
       return <Text>Unsupported file format</Text>;
     }
-  };
-
-  //edit modal
-  const [editModal, setEditModal] = useState(false);
-  const [editPostId, setEditPostId] = useState<number | null>(null);
-  const [editPostContent, setEditPostContent] = useState('');
-  const showEditModal = (postId: number, content: string) => {
-    setEditPostId(postId);
-    setEditPostContent(content);
-    setEditModal(true);
-  };
-  const editModalCancel = () => {
-    setEditModal(false);
-  };
-
-  //share
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [sharePostId, setSharePostId] = useState<number | null>(null);
-  const toggleModal = (postId: number) => {
-    setShowShareModal(true);
-    setSharePostId(postId);
-  };
-  const closeShareModal = () => {
-    setShowShareModal(false);
   };
 
   return (
@@ -516,62 +471,67 @@ const Posts: React.FC<PostsProps> = ({
               </View>
             </View>
           </TouchableOpacity>
-          {/* <TouchableOpacity onPress={() => handleDropdownToggle(post._id)}>
-            <MaterialCommunityIcons name="dots-vertical" size={20} />
-          </TouchableOpacity> */}
-          <Dropdown
-            top={52}
-            right={10}
-            button={
-              <MaterialCommunityIcons
-                name="dots-vertical"
-                size={20}
-                style={{color: darkMode ? 'white' : 'black'}}
-              />
-            }
-            children={
-              <View ref={dropdownRef} style={styles.dropdown}>
-                {post?.userId?.UserName === loggedInUser.UserName ? (
-                  <>
-                    <View style={styles.option}>
-                      <TouchableOpacity
-                        style={styles.optionSep}
-                        onPress={() => showDeleteModal(post._id)}>
-                        <AntDesign name="delete" size={20} />
-                        <Text style={styles.optionText}>Delete</Text>
-                      </TouchableOpacity>
-                    </View>
-                    <View style={styles.option}>
-                      <TouchableOpacity
-                        style={styles.optionSep}
-                        onPress={() => showEditModal(post?._id, post?.content)}>
-                        <AntDesign name="edit" size={18} />
-                        <Text style={styles.optionText}>Edit</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </>
-                ) : (
+          <TouchableOpacity onPress={() => handleDropdownToggle(post._id)}>
+            <MaterialCommunityIcons
+              name="dots-vertical"
+              color={darkMode ? 'white' : 'black'}
+              size={20}
+              style={{position: 'relative'}}
+            />
+          </TouchableOpacity>
+
+          {openDropdowns[post._id] && (
+            <View ref={dropdownRef} style={styles.dropdown}>
+              {post?.userId?.UserName === loggedInUser.UserName ? (
+                <>
                   <View style={styles.option}>
                     <TouchableOpacity
                       style={styles.optionSep}
-                      onPress={() => showReportModal(post._id)}>
-                      <MaterialIcons
-                        name="report-problem"
-                        size={20}
-                        color={'yellow'}
-                      />
-                      <Text style={styles.optionText}>Report</Text>
+                      onPress={() => {
+                        setOpenDropdowns({});
+                        showDeleteModal(post._id);
+                      }}>
+                      <AntDesign name="delete" size={20} color={'red'} />
+                      <Text style={styles.optionText}>Delete</Text>
                     </TouchableOpacity>
                   </View>
-                )}
-              </View>
-            }
-          />
-          {openDropdowns[post._id] && <></>}
+                  <View style={styles.option}>
+                    <TouchableOpacity
+                      style={styles.optionSep}
+                      onPress={() => {
+                        setOpenDropdowns({});
+                        showEditModal(post?._id, post?.content);
+                      }}>
+                      <AntDesign name="edit" size={18} color={'blue'} />
+                      <Text style={styles.optionText}>Edit</Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : (
+                <View style={styles.option}>
+                  <TouchableOpacity
+                    style={styles.optionSep}
+                    onPress={() => {
+                      setOpenDropdowns({});
+                      showReportModal(post._id);
+                    }}>
+                    <MaterialIcons
+                      name="report-problem"
+                      size={20}
+                      color={'yellow'}
+                      style={{
+                        backgroundColor: 'red',
+                        borderRadius: 50,
+                        padding: 2,
+                      }}
+                    />
+                    <Text style={styles.optionText}>Report</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          )}
         </View>
-        {/* {post?.fileUrl && (
-          <Image source={{uri: post?.fileUrl}} style={styles.postImage} />
-        )} */}
         {post.fileUrl && renderMedia(post.fileUrl)}
         <Text style={[styles.content, {color: darkMode ? 'white' : 'black'}]}>
           {post?.content}
@@ -595,7 +555,6 @@ const Posts: React.FC<PostsProps> = ({
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              console.log('comments clicked');
               handleCommentClick(post._id);
             }}>
             <FontAwesome name="commenting-o" size={26} color={'#A3AED0'} />
@@ -615,13 +574,69 @@ const Posts: React.FC<PostsProps> = ({
             )}
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => {
-              console.log('comments clicked');
+            onPress={async () => {
+              try {
+                await Share.open({
+                  title: 'Share this link',
+                  message: 'Check out this link!',
+                  url: `https://onlyfriends.fun/#${post._id}`,
+                });
+              } catch (error) {
+                Toast.show({
+                  type: 'error',
+                  text1:
+                    'Share failed, An error occurred while sharing the link.',
+                });
+              }
             }}>
             <MaterialIcons name="share" size={26} color={'#A3AED0'} />
           </TouchableOpacity>
         </View>
       </Card>
+      {clickedPostId && (
+        <CommentModal postId={clickedPostId} closeModal={closeModal} />
+      )}
+
+      {deleteModal && (
+        <CustomModal
+          Heading="Delete Post"
+          content="Are you sure to delete this post?"
+          onCancel={deleteModalCancel}
+          onConfirm={deleteModalConfirm}
+        />
+      )}
+
+      {reportModal && (
+        <CustomModal
+          Heading="Report Post"
+          content={
+            <View style={{}}>
+              <RadioGroup
+                radioButtons={reportOptions}
+                onPress={setSelecetedOpt}
+                selectedId={selectedOpt}
+                layout="column" // or "row" for horizontal layout
+                labelStyle={{
+                  color: darkMode ? 'white' : 'black',
+                  alignItems: 'center',
+                }}
+                containerStyle={{alignItems: 'flex-start'}}
+              />
+            </View>
+          }
+          onCancel={reportModalCancel}
+          onConfirm={reportModalConfirm}
+        />
+      )}
+
+      {editModal && (
+        <EditModal
+          onCancel={editModalCancel}
+          setUpdateUI={setUpdateUI}
+          editPostId={editPostId}
+          editPostContent={editPostContent}
+        />
+      )}
     </>
   );
 };

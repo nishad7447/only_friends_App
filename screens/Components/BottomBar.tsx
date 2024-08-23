@@ -1,13 +1,11 @@
-import React, {useContext, useState, useRef, useEffect} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import {
   View,
   TouchableOpacity,
   StyleSheet,
   Image,
-  Animated,
-  Easing,
 } from 'react-native';
-import {useNavigation, NavigationProp} from '@react-navigation/native';
+import {useNavigation, NavigationProp, useRoute, useIsFocused} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -16,44 +14,22 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const BottomBar: React.FC<{user: any}> = ({user}) => {
   const navigation = useNavigation<NavigationProp<any>>();
+  const route = useRoute();
+  const isFocused = useIsFocused();
   const {darkMode, toggleTheme} = useContext(ThemeContext);
   const [selected, setSelected] = useState<string>('Home');
 
-  // Animation states for each item
-  const homeRotateAnim = useRef(new Animated.Value(0)).current;
-  const chatRotateAnim = useRef(new Animated.Value(0)).current;
-  const profileRotateAnim = useRef(new Animated.Value(0)).current;
-  const SettingsRotateAnim = useRef(new Animated.Value(0)).current;
-
-  // Rotate animation function
-  const startRotateAnimation = (anim: Animated.Value) => {
-    Animated.timing(anim, {
-      toValue: 1,
-      duration: 300,
-      easing: Easing.ease,
-      useNativeDriver: true,
-    }).start(() => anim.setValue(0));
-  };
-
-  // Trigger rotation animation based on selected item
   useEffect(() => {
-    if (selected === 'Home') startRotateAnimation(homeRotateAnim);
-    if (selected === 'Chat') startRotateAnimation(chatRotateAnim);
-    if (selected === 'Profile') startRotateAnimation(profileRotateAnim);
-    if (selected === 'Settings') startRotateAnimation(SettingsRotateAnim);
-  }, [selected]);
+    if (isFocused) {
+      const currentRoute = route.name;
+      setSelected(currentRoute);
+    }
+  }, [isFocused, route.name]);
 
   const handleNavigation = (screen: string) => {
     setSelected(screen);
     navigation.navigate(screen);
   };
-
-  // Rotation interpolation
-  const rotate = (anim: Animated.Value) =>
-    anim.interpolate({
-      inputRange: [0, 2],
-      outputRange: ['0deg', '360deg'],
-    });
 
   return (
     <View
@@ -67,13 +43,11 @@ const BottomBar: React.FC<{user: any}> = ({user}) => {
           selected === 'Home' && styles.selectedContainer,
         ]}
         onPress={() => handleNavigation('Home')}>
-        <Animated.View style={{transform: [{rotate: rotate(homeRotateAnim)}]}}>
-          <Icon
-            name="home-outline"
-            size={28}
-            color={darkMode ? '#fff' : '#000'}
-          />
-        </Animated.View>
+        <Icon
+          name="home-outline"
+          size={28}
+          color={darkMode ? '#fff' : '#000'}
+        />
       </TouchableOpacity>
       <TouchableOpacity
         style={[
@@ -81,13 +55,11 @@ const BottomBar: React.FC<{user: any}> = ({user}) => {
           selected === 'Chat' && styles.selectedContainer,
         ]}
         onPress={() => handleNavigation('Chat')}>
-        <Animated.View style={{transform: [{rotate: rotate(chatRotateAnim)}]}}>
-          <MaterialCommunityIcons
-            name="message-processing-outline"
-            size={28}
-            color={darkMode ? '#fff' : '#000'}
-          />
-        </Animated.View>
+        <MaterialCommunityIcons
+          name="message-processing-outline"
+          size={28}
+          color={darkMode ? '#fff' : '#000'}
+        />
       </TouchableOpacity>
       <TouchableOpacity
         style={[
@@ -97,14 +69,11 @@ const BottomBar: React.FC<{user: any}> = ({user}) => {
         onPress={() => {
           navigation.navigate('Profile', {userId: ''});
         }}>
-        <Animated.View
-          style={{transform: [{rotate: rotate(profileRotateAnim)}]}}>
-          <Image
-            style={styles.profileImage}
-            source={{uri: user?.ProfilePic}}
-            alt={user?.UserName}
-          />
-        </Animated.View>
+        <Image
+          style={styles.profileImage}
+          source={{uri: user?.ProfilePic}}
+          alt={user?.UserName}
+        />
       </TouchableOpacity>
       <TouchableOpacity onPress={toggleTheme}>
         {darkMode ? (
@@ -123,14 +92,11 @@ const BottomBar: React.FC<{user: any}> = ({user}) => {
           selected === 'Settings' && styles.selectedContainer,
         ]}
         onPress={() => handleNavigation('Settings')}>
-        <Animated.View
-          style={{transform: [{rotate: rotate(SettingsRotateAnim)}]}}>
-          <Feather
-            name="settings"
-            size={28}
-            color={darkMode ? 'white' : 'black'}
-          />
-        </Animated.View>
+        <Feather
+          name="settings"
+          size={28}
+          color={darkMode ? 'white' : 'black'}
+        />
       </TouchableOpacity>
     </View>
   );
@@ -141,7 +107,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    padding: 10,
+    padding: 7,
     borderTopWidth: 1,
     borderColor: '#ddd',
     height: 60,
@@ -153,8 +119,8 @@ const styles = StyleSheet.create({
   },
   selectedContainer: {
     backgroundColor: '#4A90E2',
-    borderRadius: 12,
-    padding: 8,
+    borderRadius: 50,
+    padding: 6,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,

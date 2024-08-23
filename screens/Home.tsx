@@ -9,7 +9,6 @@ import {
   TextInput,
   StyleSheet,
 } from 'react-native';
-import moment from 'moment';
 import {UserBaseURL} from './Components/API';
 import {axiosInstance} from './Components/AxiosConfig';
 import {RefreshControl, TouchableOpacity} from 'react-native-gesture-handler';
@@ -32,10 +31,6 @@ interface Post {
   createdAt: string;
 }
 
-interface HomeState {
-  user: any; // Adjust according to your user state type
-}
-
 const Spinner: React.FC = () => (
   <View style={styles.spinnerContainer}>
     <View style={styles.spinner}></View>
@@ -43,18 +38,11 @@ const Spinner: React.FC = () => (
 );
 
 const Home: React.FC = () => {
-  const navigation = useNavigation<NavigationProp<any>>();
   const [loadingUser, setLoadingUser] = useState<boolean>(true);
   const [posts, setPosts] = useState<Post[]>([]);
   const [ad, setAd] = useState<Post[]>([]);
   const [updateUI, setUpdateUI] = useState<boolean>(false);
-  const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
-  const [editModalVisible, setEditModalVisible] = useState<boolean>(false);
-  const [editPostContent, setEditPostContent] = useState<string>('');
-  const [reportModalVisible, setReportModalVisible] = useState<boolean>(false);
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
-  const [editPostId, setEditPostId] = useState<string | null>(null);
   const {darkMode, user} = useContext(ThemeContext);
 
   const handleRefresh = () => {
@@ -81,25 +69,6 @@ const Home: React.FC = () => {
     fetchData();
   }, [updateUI, isRefreshing]);
 
-  const handleEditPost = () => {
-    if (editPostId) {
-      axiosInstance
-        .post(`${UserBaseURL}/editPost`, {
-          postId: editPostId,
-          content: editPostContent,
-        })
-        .then(res => {
-          // toast.success('Post edited successfully');
-          setUpdateUI(prev => !prev);
-          setEditModalVisible(false);
-        })
-        .catch(error => {
-          console.error(error);
-          // toast.error('An error occurred.');
-        });
-    }
-  };
-
   return (
     <>
       {loadingUser ? (
@@ -121,68 +90,18 @@ const Home: React.FC = () => {
             ) : (
               posts &&
               posts.map((post: any) => (
-                  <Posts
-                    key={post._id}
-                    post={post}
-                    setUpdateUI={setUpdateUI}
-                    userId={''}
-                    loggedInUser={user}
-                  />
+                <Posts
+                  key={post._id}
+                  post={post}
+                  setUpdateUI={setUpdateUI}
+                  userId={''}
+                  loggedInUser={user}
+                />
               ))
             )}
           </View>
         </ScrollView>
       )}
-      <Modal visible={deleteModalVisible} transparent={true}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modal}>
-            <Text>Are you sure you want to delete this post?</Text>
-            <Button
-              title="Cancel"
-              onPress={() => setDeleteModalVisible(false)}
-            />
-            <Button
-              title="Delete"
-              onPress={() => {
-                /* deletePost() */
-              }}
-            />
-          </View>
-        </View>
-      </Modal>
-      <Modal visible={editModalVisible} transparent={true}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modal}>
-            <Text>Edit post</Text>
-            <TextInput
-              value={editPostContent}
-              onChangeText={setEditPostContent}
-              multiline={true}
-              style={styles.textInput}
-            />
-            <Button title="Save" onPress={handleEditPost} />
-            <Button title="Cancel" onPress={() => setEditModalVisible(false)} />
-          </View>
-        </View>
-      </Modal>
-      <Modal visible={reportModalVisible} transparent={true}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modal}>
-            <Text>Report Post</Text>
-            {/* Add your reporting options here */}
-            <Button
-              title="Cancel"
-              onPress={() => setReportModalVisible(false)}
-            />
-            <Button
-              title="Report"
-              onPress={() => {
-                /* reportPost() */
-              }}
-            />
-          </View>
-        </View>
-      </Modal>
     </>
   );
 };
@@ -191,7 +110,6 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     flexGrow: 1,
     padding: 10,
-    // top:48
   },
   spinnerContainer: {
     flex: 1,
@@ -248,26 +166,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modal: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 8,
-    width: '80%',
-  },
-  textInput: {
-    height: 100,
-    borderColor: '#ddd',
-    borderWidth: 1,
-    borderRadius: 4,
-    marginVertical: 10,
-    padding: 10,
   },
 });
 

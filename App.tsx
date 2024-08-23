@@ -1,6 +1,7 @@
 import 'react-native-gesture-handler';
 import 'react-native-screens';
 import 'react-native-safe-area-context';
+import {StyleSheet} from 'react-native';
 import React, {useContext, useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -17,12 +18,14 @@ import Settings from './screens/Settings';
 import SponsoredAd from './screens/SponsoredAd';
 import Chat from './screens/Chat';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import Toast from 'react-native-toast-message';
+import Toast, {BaseToast, ErrorToast} from 'react-native-toast-message';
 
 const Stack = createNativeStackNavigator();
 
-const withProtected = <P extends object>(WrappedComponent: React.ComponentType<P>): React.FC<P> => {
-  const ProtectedComponent: React.FC<P> = (props) => (
+const withProtected = <P extends object>(
+  WrappedComponent: React.ComponentType<P>,
+): React.FC<P> => {
+  const ProtectedComponent: React.FC<P> = props => (
     <Protected>
       <WrappedComponent {...props} />
     </Protected>
@@ -32,7 +35,7 @@ const withProtected = <P extends object>(WrappedComponent: React.ComponentType<P
 };
 
 const App = () => {
-  const {darkMode}=useContext(ThemeContext)
+  const {darkMode} = useContext(ThemeContext);
   useEffect(() => {
     GoogleSignin.configure({
       webClientId:
@@ -40,62 +43,89 @@ const App = () => {
     });
   }, []);
 
+  const styles = StyleSheet.create({
+    toast: {
+      paddingTop: 10,
+      backgroundColor: darkMode ? '#111C44' : '#FFFFFF',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 10,
+      borderRadius: 50,
+      shadowColor: '#000',
+      shadowOffset: {width: 0, height: 2},
+      shadowOpacity: 0.2,
+      shadowRadius: 2,
+      elevation: 4,
+      height: 60,
+      width: '100%',
+      borderWidth: 2,
+    },
+  });
+  const toastConfig = {
+    success: props => (
+      <BaseToast {...props} style={[styles.toast, {borderColor: 'green'}]} />
+    ),
+    error: props => (
+      <ErrorToast {...props} style={[styles.toast, {borderColor: 'red'}]} />
+    ),
+  };
+
   return (
-      <ThemeProvider>
-        <GestureHandlerRootView style={{flex: 1}}>
-          <NavigationContainer>
-            <Stack.Navigator initialRouteName="Home">
-              <Stack.Screen
-                name="SignIn"
-                component={SignIn}
-                options={{headerShown: false}}
-              />
-              <Stack.Screen
-                name="SignUp"
-                component={SignUp}
-                options={{headerShown: false}}
-              />
-              <Stack.Screen
-                name="Home"
-                component={withProtected(Home)}
-                options={{headerShown: false}}
-              />
-              <Stack.Screen
-                name="ProfileSettings"
-                component={withProtected(ProfileSettings)}
-                options={{headerShown: false}}
-              />
-              <Stack.Screen
-                name="SavedPosts"
-                component={withProtected(SavedPosts)}
-                options={{headerShown: false}}
-              />
-              <Stack.Screen
-                name="Profile"
-                component={withProtected(Profile)}
-                options={{headerShown: false}}
-              />
-              <Stack.Screen
-                name="Settings"
-                component={withProtected(Settings)}
-                options={{headerShown: false}}
-              />
-              <Stack.Screen
-                name="SponsoredAd"
-                component={withProtected(SponsoredAd)}
-                options={{headerShown: false}}
-              />
-              <Stack.Screen
-                name="Chat"
-                component={withProtected(Chat)}
-                options={{headerShown: false}}
-              />
-              {/* <Stack.Screen name="ForgotPassword" component={ForgotPassword} options={{ headerShown: false }} /> */}
-            </Stack.Navigator>
-            <Toast />
-          </NavigationContainer>
-        </GestureHandlerRootView>
-      </ThemeProvider>
+    <ThemeProvider>
+      <GestureHandlerRootView style={{flex: 1}}>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="Home">
+            <Stack.Screen
+              name="SignIn"
+              component={SignIn}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="SignUp"
+              component={SignUp}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="Home"
+              component={withProtected(Home)}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="ProfileSettings"
+              component={withProtected(ProfileSettings)}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="SavedPosts"
+              component={withProtected(SavedPosts)}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="Profile"
+              component={withProtected(Profile)}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="Settings"
+              component={withProtected(Settings)}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="SponsoredAd"
+              component={withProtected(SponsoredAd)}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="Chat"
+              component={withProtected(Chat)}
+              options={{headerShown: false}}
+            />
+          </Stack.Navigator>
+          <Toast config={toastConfig} position="top" bottomOffset={100} />
+        </NavigationContainer>
+      </GestureHandlerRootView>
+    </ThemeProvider>
   );
 };
 

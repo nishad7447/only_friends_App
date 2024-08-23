@@ -1,10 +1,9 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   TextInput,
   Image,
   Text,
-  Button,
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
@@ -15,10 +14,10 @@ import {axiosInstance} from './AxiosConfig';
 import {UserBaseURL} from './API';
 import Card from './Card';
 import {ThemeContext} from '../Context/ThemeContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import VideoPlayer from './VideoComponent';
 
 export default function CreatePost({setUpdateUI}: {setUpdateUI: any}) {
-    const {user} = useContext(ThemeContext)
+  const {user} = useContext(ThemeContext);
 
   const {darkMode} = useContext(ThemeContext);
   const [postText, setPostText] = useState('');
@@ -47,17 +46,13 @@ export default function CreatePost({setUpdateUI}: {setUpdateUI: any}) {
         type: attachedImage.type,
         name: attachedImage.fileName,
       });
-    }
-
-    if (attachedVideo) {
+    } else if (attachedVideo) {
       formData.append('file', {
         uri: attachedVideo.uri,
         type: attachedVideo.type,
         name: attachedVideo.fileName,
       });
-    }
-
-    if (attachedAudio) {
+    } else if (attachedAudio) {
       formData.append('file', {
         uri: attachedAudio.uri,
         type: attachedAudio.type,
@@ -69,12 +64,15 @@ export default function CreatePost({setUpdateUI}: {setUpdateUI: any}) {
       formData.append('userId', user._id);
     }
 
-    console.log('FormData:', formData);
-
     try {
       const response = await axiosInstance.post(
         `${UserBaseURL}/post`,
         formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
       );
       console.log('Response from backend:', response.data);
       setPostText('');
@@ -142,7 +140,7 @@ export default function CreatePost({setUpdateUI}: {setUpdateUI: any}) {
         <Image source={{uri: attachedImage.uri}} style={styles.previewImage} />
       );
     } else if (attachedVideo) {
-      return <Text>Video Preview: {attachedVideo.fileName}</Text>; // You can use a video player component
+      return <VideoPlayer fileUrl={attachedVideo.uri} />;
     } else if (attachedAudio) {
       return <Text>Audio Preview: {attachedAudio.fileName}</Text>; // You can use an audio player component
     } else {
@@ -165,12 +163,37 @@ export default function CreatePost({setUpdateUI}: {setUpdateUI: any}) {
         <Image source={{uri: user?.ProfilePic}} style={styles.avatar} />
         <TextInput
           placeholder="New post..."
-          placeholderTextColor={darkMode ? '#969696' : '#747474'} 
-          style={[styles.textInput,{backgroundColor: darkMode ? '#0B1437' : '#F4F7FE',color: darkMode ? '#fff' : '#000'}]}
+          placeholderTextColor={darkMode ? '#969696' : '#747474'}
+          style={[
+            styles.textInput,
+            {
+              backgroundColor: darkMode ? '#0B1437' : '#F4F7FE',
+              color: darkMode ? '#fff' : '#000',
+            },
+          ]}
           value={postText}
           onChangeText={handlePostChange}
           multiline
         />
+        {postText || attachedImage || attachedAudio || attachedVideo ? (
+          <TouchableOpacity
+            style={{
+              padding: 10,
+              marginLeft: 4,
+              backgroundColor: 'gray',
+              borderRadius: 50,
+            }}
+            onPress={() => {
+              setPostText('');
+              setAttachedImage(null);
+              setAttachedVideo(null);
+              setAttachedAudio(null);
+            }}>
+            <Text style={{color: 'white'}}>Clear</Text>
+          </TouchableOpacity>
+        ) : (
+          ''
+        )}
       </View>
       <View style={styles.previewContainer}>{renderFilePreview()}</View>
       <View style={styles.divider} />
@@ -187,11 +210,16 @@ export default function CreatePost({setUpdateUI}: {setUpdateUI: any}) {
           />
         </TouchableOpacity>
         <TouchableOpacity onPress={handleAudioChange}>
-          <Icon name="mic-outline" size={24} color="#A3AED0" style={styles.icon} />
+          <Icon
+            name="mic-outline"
+            size={24}
+            color="#A3AED0"
+            style={styles.icon}
+          />
         </TouchableOpacity>
         {/* <Button title="Post" onPress={handlePostSubmit} /> */}
         <TouchableOpacity style={styles.button} onPress={handlePostSubmit}>
-          <Icon name="send" size={18} style={{marginRight:6,color: '#fff'}} />
+          <Icon name="send" size={18} style={{marginRight: 6, color: '#fff'}} />
           <Text style={styles.buttonText}>Post</Text>
         </TouchableOpacity>
       </View>
@@ -210,7 +238,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     marginRight: 8,
-    backgroundColor:'red'
+    backgroundColor: 'red',
   },
   textInput: {
     flex: 1,
@@ -241,9 +269,9 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
   button: {
-    display:'flex',
-    flexDirection:'row',
-    justifyContent:'center',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
     width: 90,
     padding: 7,
     backgroundColor: '#1E90FF',

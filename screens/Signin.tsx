@@ -33,7 +33,7 @@ export default function SignIn({}: SignInProps) {
   const [passErr, setPassErr] = useState<string>('');
   const [formErr, setFormErr] = useState<string>('');
   const navigation = useNavigation<NavigationProp<any>>();
-  const {setUser,darkMode,orientation} = useContext(ThemeContext);
+  const {setUser, darkMode, orientation} = useContext(ThemeContext);
 
   useFocusEffect(
     useCallback(() => {
@@ -75,12 +75,11 @@ export default function SignIn({}: SignInProps) {
       setPassErr('Password must be at least 3 characters');
       return;
     }
-    
+
     axios
       .post(`${UserBaseURL}/auth/login`, {Email: email, Password: password})
       .then(res => {
         if (res.data.message === 'Login Success') {
-          console.log(res.data);
           AsyncStorage.setItem('jwtToken', JSON.stringify(res.data.token));
           AsyncStorage.setItem('user', JSON.stringify(res.data.user));
           setUser(res.data.user);
@@ -112,7 +111,6 @@ export default function SignIn({}: SignInProps) {
         .post(`${UserBaseURL}/auth/googleSignIn`, userInfo)
         .then(res => {
           if (res.data.message === 'Login Success') {
-            console.log(res.data);
             AsyncStorage.setItem('jwtToken', JSON.stringify(res.data.token));
             Toast.show({
               type: 'success',
@@ -252,7 +250,6 @@ export default function SignIn({}: SignInProps) {
       marginLeft: 4,
     },
   });
-
 
   return (
     <View style={styles.container}>

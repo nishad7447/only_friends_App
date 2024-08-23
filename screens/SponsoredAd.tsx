@@ -26,7 +26,7 @@ const SponsoredAd = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const amountPerDayInRupees = 100;
   const {user, darkMode} = useContext(ThemeContext);
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const [formErr, setFormErr] = useState<{
     name: string;
     link: string;
@@ -60,7 +60,6 @@ const SponsoredAd = () => {
   };
 
   const handleDateChange = (itemValue: any) => {
-
     if (itemValue === '-1') {
       setSelectedDate('');
     } else {
@@ -84,7 +83,6 @@ const SponsoredAd = () => {
     const result = await axiosInstance.post(`${UserBaseURL}/createOrder`, {
       amount: calculateTotalAmount(),
     });
-    console.log(JSON.stringify(result));
     if (!result) {
       Toast.show({type: 'error', text1: 'Server error'});
       return;
@@ -135,8 +133,6 @@ const SponsoredAd = () => {
             }
           })
           .catch(error => {
-            console.log('user create ad', error);
-            console.log(JSON.stringify(error, null, '\t'))
             if (
               error.response &&
               error.response.data &&

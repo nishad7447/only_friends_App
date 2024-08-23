@@ -41,7 +41,7 @@ const NotificationComponent: React.FC<Props> = ({
   notifictionBtn,
 }) => {
   const windowWidth = Dimensions.get('window').width;
-  console.log(JSON.stringify(notifications));
+  
   return (
     <View style={[styles.container]}>
       <View style={styles.header}>
@@ -136,11 +136,11 @@ const NotificationComponent: React.FC<Props> = ({
                             );
                           } else if (extension === 'mp4') {
                             return (
-                              <Text>Video support is not implemented yet</Text>
+                              <Text> Video</Text>
                             );
                           } else if (extension === 'mp3') {
                             return (
-                              <Text>Audio support is not implemented yet</Text>
+                              <Text> Audio</Text>
                             );
                           } else {
                             return <Text>Unsupported file format</Text>;
