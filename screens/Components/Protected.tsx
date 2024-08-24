@@ -139,6 +139,7 @@ const Protected: React.FC<ProtectedProps> = ({children}) => {
       flex: 1,
     },
     navbar: {
+      width:'100%',
       paddingTop: 10,
       backgroundColor: darkMode ? '#111C44' : '#FFFFFF',
       flexDirection: 'row',
@@ -154,11 +155,12 @@ const Protected: React.FC<ProtectedProps> = ({children}) => {
     },
     title: {
       marginLeft: 7,
-      fontSize: 26,
+      fontSize: 24,
       fontWeight: 'bold',
       textShadowColor: 'rgba(255, 255, 255, 0.8)', // White color with opacity
       textShadowOffset: {width: 0, height: 0}, // No offset
       textShadowRadius: 3,
+      width:'40%'
     },
     searchContainer: {
       backgroundColor: darkMode ? '#0B1437' : '#F4F7FE',
@@ -219,7 +221,7 @@ const Protected: React.FC<ProtectedProps> = ({children}) => {
                   display: 'flex',
                   flexDirection: 'row',
                   justifyContent: 'space-evenly',
-                  width: 70,
+                  width: '10%',
                 }}>
                 {/* Theme change */}
                 {/* <TouchableOpacity onPress={toggleTheme}>
