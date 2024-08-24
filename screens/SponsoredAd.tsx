@@ -8,7 +8,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {ThemeContext} from './Context/ThemeContext';
+import {GlobalState} from './Context/GlobalState';
 import {launchImageLibrary} from 'react-native-image-picker';
 import Toast from 'react-native-toast-message';
 import {Picker} from '@react-native-picker/picker';
@@ -25,7 +25,7 @@ const SponsoredAd = () => {
   const [description, setDescription] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const amountPerDayInRupees = 100;
-  const {user, darkMode} = useContext(ThemeContext);
+  const {user, darkMode} = useContext(GlobalState);
   const navigation = useNavigation<any>();
   const [formErr, setFormErr] = useState<{
     name: string;

@@ -12,7 +12,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import io from 'socket.io-client';
-import {ThemeContext} from './Context/ThemeContext';
+import {GlobalState} from './Context/GlobalState';
 import {UserBaseURL} from './Components/API';
 import Toast from 'react-native-toast-message';
 import EmojiSelector from 'react-native-emoji-selector';
@@ -23,7 +23,7 @@ import Card from './Components/Card';
 
 const ENDPOINT = UserBaseURL;
 const Chat = () => {
-  const {user, darkMode} = useContext(ThemeContext);
+  const {user, darkMode} = useContext(GlobalState);
   const userId = user?._id;
   const [updateUI, setUpdateUI] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -586,7 +586,7 @@ const Chat = () => {
 const ModalContent = ({onClose, setUpdateUI}: any) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const {user, darkMode} = useContext(ThemeContext);
+  const {user, darkMode} = useContext(GlobalState);
 
   const searchUsers = () => {
     if (searchQuery.trim() === '') {

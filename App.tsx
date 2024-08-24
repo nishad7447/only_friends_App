@@ -6,7 +6,7 @@ import React, {useContext, useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
-import {ThemeContext, ThemeProvider} from './screens/Context/ThemeContext';
+import {GlobalState, GlobalStateProvider} from './screens/Context/GlobalState';
 import SignIn from './screens/Signin';
 import SignUp from './screens/SignUp';
 import Protected from './screens/Components/Protected';
@@ -17,6 +17,8 @@ import Profile from './screens/Profile';
 import Settings from './screens/Settings';
 import SponsoredAd from './screens/SponsoredAd';
 import Chat from './screens/Chat';
+import SearchScreen from './screens/Search';
+import FollowersOrFollowings from './screens/FollowersOrFollowings';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Toast, {BaseToast, ErrorToast} from 'react-native-toast-message';
 
@@ -35,7 +37,7 @@ const withProtected = <P extends object>(
 };
 
 const App = () => {
-  const {darkMode} = useContext(ThemeContext);
+  const {darkMode} = useContext(GlobalState);
   useEffect(() => {
     GoogleSignin.configure({
       webClientId:
@@ -72,10 +74,10 @@ const App = () => {
   };
 
   return (
-    <ThemeProvider>
+    <GlobalStateProvider>
       <GestureHandlerRootView style={{flex: 1}}>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="Home">
+          <Stack.Navigator initialRouteName="SignIn">
             <Stack.Screen
               name="SignIn"
               component={SignIn}
@@ -121,11 +123,21 @@ const App = () => {
               component={withProtected(Chat)}
               options={{headerShown: false}}
             />
+            <Stack.Screen
+              name="Search"
+              component={withProtected(SearchScreen)}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="FollowersOrFollowings"
+              component={withProtected(FollowersOrFollowings)}
+              options={{headerShown: false}}
+            />
           </Stack.Navigator>
           <Toast config={toastConfig} position="top" bottomOffset={100} />
         </NavigationContainer>
       </GestureHandlerRootView>
-    </ThemeProvider>
+    </GlobalStateProvider>
   );
 };
 

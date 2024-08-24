@@ -1,13 +1,14 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {View, Text, ActivityIndicator, StyleSheet} from 'react-native';
-import {ThemeContext} from './Context/ThemeContext';
+import {GlobalState} from './Context/GlobalState';
 import {axiosInstance} from './Components/AxiosConfig';
 import {UserBaseURL} from './Components/API';
 import Toast from 'react-native-toast-message';
 import Posts from './Components/Posts';
+import {ScrollView} from 'react-native-gesture-handler';
 
 const SavedPosts = () => {
-  const {user, darkMode} = useContext(ThemeContext);
+  const {user, darkMode} = useContext(GlobalState);
   const [loadingUser, setLoadingUser] = useState(true);
   const [savedPosts, setSavedPosts] = useState([]);
   const [updateUI, setUpdateUI] = useState(false);
@@ -69,21 +70,27 @@ const SavedPosts = () => {
       ) : (
         <>
           <Text style={styles.header}>Saved Posts</Text>
-          {savedPosts.length > 0 ? (
-            savedPosts.map((post: any) => (
-              <Posts
-                key={post.postId._id}
-                post={post.postId}
-                setUpdateUI={setUpdateUI}
-                userId={''}
-                loggedInUser={user}
-              />
-            ))
-          ) : (
-            <Text style={styles.noPostsText}>
-              There is nothing in saved posts
-            </Text>
-          )}
+          <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+            }}
+            showsVerticalScrollIndicator={false}>
+            {savedPosts.length > 0 ? (
+              savedPosts.map((post: any) => (
+                <Posts
+                  key={post.postId._id}
+                  post={post.postId}
+                  setUpdateUI={setUpdateUI}
+                  userId={''}
+                  loggedInUser={user}
+                />
+              ))
+            ) : (
+              <Text style={styles.noPostsText}>
+                There is nothing in saved posts
+              </Text>
+            )}
+          </ScrollView>
         </>
       )}
     </View>

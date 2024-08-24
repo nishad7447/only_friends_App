@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext } from 'react';
+import React, {useState, useRef, useContext} from 'react';
 import {
   View,
   TouchableOpacity,
@@ -7,7 +7,7 @@ import {
   Animated,
   TouchableWithoutFeedback,
 } from 'react-native';
-import { ThemeContext } from '../Context/ThemeContext';
+import {GlobalState} from '../Context/GlobalState';
 
 interface DropdownProps {
   button: React.ReactNode;
@@ -16,10 +16,10 @@ interface DropdownProps {
   right: number;
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ button, children, top, right }) => {
+const Dropdown: React.FC<DropdownProps> = ({button, children, top, right}) => {
   const [openWrapper, setOpenWrapper] = useState(false);
   const scaleValue = useRef(new Animated.Value(0)).current;
-  const { darkMode } = useContext(ThemeContext);
+  const {darkMode} = useContext(GlobalState);
 
   const toggleDropdown = () => {
     setOpenWrapper(!openWrapper);
@@ -40,8 +40,8 @@ const Dropdown: React.FC<DropdownProps> = ({ button, children, top, right }) => 
       top,
       right,
       backgroundColor: darkMode ? '#111C44' : '#FFFFFF',
-      shadowColor: darkMode ?'#fff':'#000',
-      shadowOffset: { width: 0, height: 2 },
+      shadowColor: darkMode ? '#fff' : '#000',
+      shadowOffset: {width: 0, height: 2},
       shadowOpacity: 0.8,
       shadowRadius: 2,
       elevation: 5,
@@ -62,14 +62,11 @@ const Dropdown: React.FC<DropdownProps> = ({ button, children, top, right }) => 
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={toggleDropdown}>
-        {button}
-      </TouchableOpacity>
+      <TouchableOpacity onPress={toggleDropdown}>{button}</TouchableOpacity>
       <Modal
         transparent={true}
         visible={openWrapper}
-        onRequestClose={() => setOpenWrapper(false)}
-      >
+        onRequestClose={() => setOpenWrapper(false)}>
         <TouchableWithoutFeedback onPress={() => setOpenWrapper(false)}>
           <View style={styles.modalBackground}>
             <TouchableWithoutFeedback>
@@ -77,14 +74,11 @@ const Dropdown: React.FC<DropdownProps> = ({ button, children, top, right }) => 
                 style={[
                   styles.dropdown,
                   {
-                    transform: [{ scale: scaleValue }],
+                    transform: [{scale: scaleValue}],
                     opacity: scaleValue,
                   },
-                ]}
-              >
-                <View style={styles.dropdownContent}>
-                  {children}
-                </View>
+                ]}>
+                <View style={styles.dropdownContent}>{children}</View>
               </Animated.View>
             </TouchableWithoutFeedback>
           </View>

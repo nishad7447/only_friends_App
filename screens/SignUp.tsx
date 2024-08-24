@@ -16,7 +16,7 @@ import axios from 'axios';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import Card from './Components/Card';
 import FixedPlugin from './Components/FixedPlugin';
-import {ThemeContext} from './Context/ThemeContext';
+import {GlobalState} from './Context/GlobalState';
 import {UserBaseURL} from './Components/API';
 import { ScrollView } from 'react-native-gesture-handler';
 
@@ -120,7 +120,7 @@ export default function SignUp() {
     return () => clearTimeout(timer);
   }, [emailErr, passErr, usernameErr, mobErr, formErr, otpErr]);
 
-  const {darkMode, orientation} = useContext(ThemeContext);
+  const {darkMode, orientation} = useContext(GlobalState);
 
   const styles = StyleSheet.create({
     container: {

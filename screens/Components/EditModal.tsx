@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   Modal,
   View,
@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import {ThemeContext} from '../Context/ThemeContext';
+import {GlobalState} from '../Context/GlobalState';
 import {axiosInstance} from './AxiosConfig';
 import {UserBaseURL} from './API';
 import Toast from 'react-native-toast-message';
@@ -28,7 +28,7 @@ const EditModal: React.FC<EditModalProps> = ({
   editPostContent,
 }) => {
   const [editContent, setEditContent] = useState<string>(editPostContent);
-  const {darkMode, user} = useContext(ThemeContext);
+  const {darkMode, user} = useContext(GlobalState);
 
   const changeContent = async () => {
     try {
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '90%',
-    maxHeight:"80%",
+    maxHeight: '80%',
     borderRadius: 15,
     padding: 20,
   },
@@ -144,11 +144,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
     marginBottom: 15,
-    elevation:2
+    elevation: 2,
   },
   label: {
     fontSize: 16,
-    fontWeight:'500',
+    fontWeight: '500',
     marginBottom: 10,
   },
   textInput: {
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     padding: 8,
     fontSize: 16,
     textAlignVertical: 'top',
-    maxHeight:"80%"
+    maxHeight: '80%',
   },
   buttonContainer: {
     flexDirection: 'row',

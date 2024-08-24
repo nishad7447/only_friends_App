@@ -10,17 +10,17 @@ import {
   RefreshControl,
 } from 'react-native';
 import {launchImageLibrary} from 'react-native-image-picker'; // For image selection
-import {showMessage} from 'react-native-flash-message'; // For toast messages
-import {ThemeContext} from './Context/ThemeContext';
+import {GlobalState} from './Context/GlobalState';
 import {axiosInstance} from './Components/AxiosConfig';
 import {UserBaseURL} from './Components/API';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import Card from './Components/Card';
 import Toast from 'react-native-toast-message';
+import CustomModal from './Components/Modal';
 
 const ProfileSettings = () => {
-  const {user, darkMode} = useContext(ThemeContext);
+  const {user, darkMode} = useContext(GlobalState);
   const [name, setName] = useState(user.Name);
   const [email, setEmail] = useState(user.Email);
   const [bio, setBio] = useState(user?.Bio || '');
@@ -132,7 +132,7 @@ const ProfileSettings = () => {
     }
 
     console.log(formErr);
-    const formData:any = {
+    const formData: any = {
       Name: name,
       Email: email,
       Bio: bio,
@@ -141,33 +141,34 @@ const ProfileSettings = () => {
     };
     if (attachedImage) {
       formData.file = {
-        uri: attachedImage.uri, // URI of the image
-        type: attachedImage.type || 'application/octet-stream', // MIME type
-        name: attachedImage.fileName || 'photo.jpg', // Filename
+        uri: attachedImage.uri,
+        type: attachedImage.type,
+        name: attachedImage.fileName
       };
     }
-    console.log(formData, 'formData');
     axiosInstance
       .put(`${UserBaseURL}/editUser`, formData)
       .then(res => {
+        console.log({res})
         if (res.data.success) {
-          showMessage({message: res.data.message, type: 'success'});
+          Toast.show({text1: res.data.message, type: 'success'});
         }
       })
       .catch(error => {
+        console.log(JSON.stringify(error))
         const errorMessage =
           error.response?.data?.message ||
           'An error occurred while saving profile information.';
-        showMessage({message: errorMessage, type: 'danger'});
+        Toast.show({text1: errorMessage, type: 'error'});
       });
   };
 
   const handleSaveSecurity = () => {
     passwordChangeModalCancel();
     if (!validatePasswordStrength(newPassword)) {
-      showMessage({
-        message: 'Password must be at least 3 characters long.',
-        type: 'danger',
+      Toast.show({
+        text1: 'Password must be at least 3 characters long.',
+        type: 'error',
       });
       return;
     }
@@ -178,14 +179,14 @@ const ProfileSettings = () => {
       })
       .then(res => {
         if (res.data.success) {
-          showMessage({message: res.data.message, type: 'success'});
+          Toast.show({text1: res.data.message, type: 'success'});
         }
       })
       .catch(error => {
         const errorMessage =
           error.response?.data?.message ||
           'An error occurred while saving security settings.';
-        showMessage({message: errorMessage, type: 'danger'});
+        Toast.show({text1: errorMessage, type: 'error'});
       });
   };
 
@@ -194,14 +195,14 @@ const ProfileSettings = () => {
       .put(`${UserBaseURL}/deactivateUserAcc`)
       .then(res => {
         if (res.data.success) {
-          showMessage({message: res.data.message, type: 'success'});
+          Toast.show({text1: res.data.message, type: 'success'});
         }
       })
       .catch(error => {
         const errorMessage =
           error.response?.data?.message ||
           'An error occurred while deactivating account.';
-        showMessage({message: errorMessage, type: 'danger'});
+        Toast.show({text1: errorMessage, type: 'error'});
       });
   };
 
@@ -215,9 +216,9 @@ const ProfileSettings = () => {
           setAttachedImage(image);
           setSelectedImage(image.uri); // Update selectedImage with the new image URI
         } else {
-          showMessage({
-            message: 'Invalid image format. Please select a valid image file.',
-            type: 'danger',
+          Toast.show({
+            text1: 'Invalid image format. Please select a valid image file.',
+            type: 'error',
           });
         }
       }
@@ -297,9 +298,9 @@ const ProfileSettings = () => {
       marginBottom: 8,
     },
     button: {
-      backgroundColor: '#2152FF',
+      backgroundColor: '#1E90FF',
       padding: 15,
-      borderRadius: 5,
+      borderRadius: 10,
       alignItems: 'center',
       marginBottom: 20,
     },
@@ -467,22 +468,20 @@ const ProfileSettings = () => {
         </TouchableOpacity>
 
         {deActivateModal && (
-          <></>
-          // <Modal
-          //     Heading="Deactivate Account"
-          //     content="Are you sure you want to deactivate your account?"
-          //     onCancel={deActivateModalCancel}
-          //     onConfirm={handleDeactivateAccount}
-          // />
+          <CustomModal
+            Heading="Deactivate Account"
+            content="Are you sure you want to deactivate your account?"
+            onCancel={deActivateModalCancel}
+            onConfirm={handleDeactivateAccount}
+          />
         )}
         {passwordChangeModal && (
-          <></>
-          // <Modal
-          //     Heading="Confirmation"
-          //     content="Are you sure you want to change your password?"
-          //     onCancel={passwordChangeModalCancel}
-          //     onConfirm={handleSaveSecurity}
-          // />
+          <CustomModal
+            Heading="Confirmation"
+            content="Are you sure you want to change your password?"
+            onCancel={passwordChangeModalCancel}
+            onConfirm={handleSaveSecurity}
+          />
         )}
       </Card>
     </ScrollView>

@@ -2,28 +2,33 @@ import React, {createContext, useState, useEffect, ReactNode} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Dimensions} from 'react-native';
 
-interface ThemeContextProps {
+interface GlobalStateProps {
   darkMode: boolean;
   toggleTheme: () => void;
   user: any | null;
   setUser: (user: any | null) => void;
   orientation: string;
   setOrientation: (orientation: string) => void;
+  search: string;
+  setSearch: (search: string) => void;
 }
 
-const ThemeContext = createContext<ThemeContextProps>({
+const GlobalState = createContext<GlobalStateProps>({
   darkMode: false,
   toggleTheme: () => {},
   user: null,
   setUser: () => {},
   orientation: 'portrait',
   setOrientation: () => {},
+  search: '',
+  setSearch: () => {},
 });
 
-const ThemeProvider: React.FC<{children: ReactNode}> = ({children}) => {
+const GlobalStateProvider: React.FC<{children: ReactNode}> = ({children}) => {
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [user, setUser] = useState<any | null>(null);
   const [orientation, setOrientation] = useState<string>('portrait');
+  const [search, setSearch] = useState<string>('');
 
   useEffect(() => {
     const loadThemePreference = async () => {
@@ -98,7 +103,7 @@ const ThemeProvider: React.FC<{children: ReactNode}> = ({children}) => {
   }, []);
 
   return (
-    <ThemeContext.Provider
+    <GlobalState.Provider
       value={{
         darkMode,
         toggleTheme,
@@ -106,10 +111,12 @@ const ThemeProvider: React.FC<{children: ReactNode}> = ({children}) => {
         setUser: updateUser,
         orientation,
         setOrientation,
+        search,
+        setSearch,
       }}>
       {children}
-    </ThemeContext.Provider>
+    </GlobalState.Provider>
   );
 };
 
-export {ThemeProvider, ThemeContext};
+export {GlobalStateProvider, GlobalState};

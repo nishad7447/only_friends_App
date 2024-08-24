@@ -8,7 +8,7 @@ import {
   ScrollView,
 } from 'react-native';
 import Card from './Components/Card';
-import {ThemeContext} from './Context/ThemeContext';
+import {GlobalState} from './Context/GlobalState';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {axiosInstance} from './Components/AxiosConfig';
 import {UserBaseURL} from './Components/API';
@@ -44,7 +44,7 @@ const Spinner: React.FC = () => {
 
 const Profile = ({route}: any) => {
   const {userId} = route.params;
-  const {darkMode, user} = useContext(ThemeContext);
+  const {darkMode, user} = useContext(GlobalState);
   const loggedInUser = user;
   const [loadingUser, setLoadingUser] = useState<boolean>(true);
   const [posts, setPosts] = useState([]);
@@ -200,6 +200,7 @@ const Profile = ({route}: any) => {
     statNumber: {
       fontSize: 18,
       fontWeight: 'bold',
+      color: darkMode ? 'white' : 'black',
     },
     statLabel: {
       color: 'gray',
@@ -246,7 +247,7 @@ const Profile = ({route}: any) => {
   });
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       {loadingUser ? (
         <Spinner />
       ) : (
@@ -321,8 +322,10 @@ const Profile = ({route}: any) => {
               <View style={styles.stats}>
                 <TouchableOpacity
                   onPress={() =>
-                    //  nav(`/followers/${user?._id}`)
-                    console.log('followersClicked')
+                    navigation.navigate('FollowersOrFollowings', {
+                      id: users._id,
+                      type: 'followers',
+                    })
                   }>
                   <Text style={styles.statNumber}>
                     {users?.Followers.length
@@ -333,8 +336,10 @@ const Profile = ({route}: any) => {
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() =>
-                    // nav(`/following/${user?._id}`)
-                    console.log('followingClicked')
+                    navigation.navigate('FollowersOrFollowings', {
+                      id: users._id,
+                      type: 'followings',
+                    })
                   }>
                   <Text style={styles.statNumber}>
                     {users?.Followings.length

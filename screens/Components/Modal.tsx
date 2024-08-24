@@ -1,6 +1,6 @@
-import React, { useRef, useContext} from 'react';
+import React, {useRef, useContext} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet, Modal} from 'react-native';
-import {ThemeContext} from '../Context/ThemeContext';
+import {GlobalState} from '../Context/GlobalState';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
 interface ModalProps {
@@ -17,7 +17,7 @@ const CustomModal: React.FC<ModalProps> = ({
   onCancel,
 }) => {
   const modalRef = useRef<View>(null);
-  const {darkMode} = useContext(ThemeContext);
+  const {darkMode} = useContext(GlobalState);
 
   //   useEffect(() => {
   //     const handleOutsideClick = (event: any) => {
@@ -41,7 +41,7 @@ const CustomModal: React.FC<ModalProps> = ({
     },
     modalContent: {
       width: '90%',
-      maxHeight:"80%",
+      maxHeight: '80%',
       backgroundColor: darkMode ? '#0a1d43' : '#fff',
       borderRadius: 15,
       padding: 20,
@@ -89,7 +89,7 @@ const CustomModal: React.FC<ModalProps> = ({
       borderBottomWidth: 1,
       borderBottomColor: '#ccc',
       marginBottom: 15,
-      elevation:2
+      elevation: 2,
     },
   });
 

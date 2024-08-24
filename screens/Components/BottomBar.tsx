@@ -1,22 +1,22 @@
 import React, {useContext, useState, useEffect} from 'react';
+import {View, TouchableOpacity, StyleSheet, Image} from 'react-native';
 import {
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-} from 'react-native';
-import {useNavigation, NavigationProp, useRoute, useIsFocused} from '@react-navigation/native';
+  useNavigation,
+  NavigationProp,
+  useRoute,
+  useIsFocused,
+} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
-import {ThemeContext} from '../Context/ThemeContext';
+import {GlobalState} from '../Context/GlobalState';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const BottomBar: React.FC<{user: any}> = ({user}) => {
   const navigation = useNavigation<NavigationProp<any>>();
   const route = useRoute();
   const isFocused = useIsFocused();
-  const {darkMode, toggleTheme} = useContext(ThemeContext);
+  const {darkMode, toggleTheme} = useContext(GlobalState);
   const [selected, setSelected] = useState<string>('Home');
 
   useEffect(() => {
@@ -49,18 +49,18 @@ const BottomBar: React.FC<{user: any}> = ({user}) => {
           color={darkMode ? '#fff' : '#000'}
         />
       </TouchableOpacity>
-      <TouchableOpacity
-        style={[
-          styles.iconContainer,
-          selected === 'Chat' && styles.selectedContainer,
-        ]}
-        onPress={() => handleNavigation('Chat')}>
-        <MaterialCommunityIcons
-          name="message-processing-outline"
-          size={28}
-          color={darkMode ? '#fff' : '#000'}
-        />
+      <TouchableOpacity onPress={toggleTheme}>
+        {darkMode ? (
+          <MaterialCommunityIcons
+            name="white-balance-sunny"
+            size={28}
+            color="#fff"
+          />
+        ) : (
+          <FontAwesome name="moon-o" size={28} color="#000" />
+        )}
       </TouchableOpacity>
+
       <TouchableOpacity
         style={[
           styles.iconContainer,
@@ -75,16 +75,17 @@ const BottomBar: React.FC<{user: any}> = ({user}) => {
           alt={user?.UserName}
         />
       </TouchableOpacity>
-      <TouchableOpacity onPress={toggleTheme}>
-        {darkMode ? (
-          <MaterialCommunityIcons
-            name="white-balance-sunny"
-            size={28}
-            color="#fff"
-          />
-        ) : (
-          <FontAwesome name="moon-o" size={28} color="#000" />
-        )}
+      <TouchableOpacity
+        style={[
+          styles.iconContainer,
+          selected === 'Chat' && styles.selectedContainer,
+        ]}
+        onPress={() => handleNavigation('Chat')}>
+        <Icon
+          name="chatbox-ellipses-outline"
+          size={28}
+          color={darkMode ? '#fff' : '#000'}
+        />
       </TouchableOpacity>
       <TouchableOpacity
         style={[

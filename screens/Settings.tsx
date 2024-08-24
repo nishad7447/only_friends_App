@@ -2,13 +2,13 @@ import React, {useContext} from 'react';
 import {Text, View, StyleSheet, TouchableOpacity, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {ThemeContext} from './Context/ThemeContext';
+import {GlobalState} from './Context/GlobalState';
 import {axiosInstance} from './Components/AxiosConfig';
 import {UserBaseURL} from './Components/API';
 
 export default function Settings() {
-  const {user, darkMode} = useContext(ThemeContext);
-  const navigation = useNavigation();
+  const {user, darkMode} = useContext(GlobalState);
+  const navigation = useNavigation<any>();
 
   const handleSignOutClick = async () => {
     await AsyncStorage.removeItem('jwtToken');

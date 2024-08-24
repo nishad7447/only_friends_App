@@ -8,18 +8,18 @@ import {
   StyleSheet,
 } from 'react-native';
 import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
-import {showMessage} from 'react-native-flash-message';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {axiosInstance} from './AxiosConfig';
 import {UserBaseURL} from './API';
 import Card from './Card';
-import {ThemeContext} from '../Context/ThemeContext';
+import {GlobalState} from '../Context/GlobalState';
 import VideoPlayer from './VideoComponent';
+import Toast from 'react-native-toast-message';
 
 export default function CreatePost({setUpdateUI}: {setUpdateUI: any}) {
-  const {user} = useContext(ThemeContext);
+  const {user} = useContext(GlobalState);
 
-  const {darkMode} = useContext(ThemeContext);
+  const {darkMode} = useContext(GlobalState);
   const [postText, setPostText] = useState('');
   const [attachedImage, setAttachedImage] = useState<any>(null);
   const [attachedVideo, setAttachedVideo] = useState<any>(null);
@@ -79,17 +79,17 @@ export default function CreatePost({setUpdateUI}: {setUpdateUI: any}) {
       setAttachedImage(null);
       setAttachedVideo(null);
       setAttachedAudio(null);
-      showMessage({
-        message: response?.data?.message,
+      Toast.show({
+        text1: response?.data?.message,
         type: 'success',
       });
       setUpdateUI((prevState: any) => !prevState);
     } catch (error: any) {
       if (error.response) {
-        showMessage({
-          message:
+        Toast.show({
+          text1:
             error?.response?.data?.message || 'Error sending data to backend',
-          type: 'danger',
+          type: 'error',
         });
       }
       console.error('Error sending data to backend:', error);
@@ -104,9 +104,9 @@ export default function CreatePost({setUpdateUI}: {setUpdateUI: any}) {
         if (allowedImageExtensions.includes(fileExtension)) {
           setAttachedImage(image);
         } else {
-          showMessage({
-            message: 'Invalid image format. Please select a valid image file.',
-            type: 'danger',
+          Toast.show({
+            text1: 'Invalid image format. Please select a valid image file.',
+            type: 'error',
           });
         }
       }
@@ -121,9 +121,9 @@ export default function CreatePost({setUpdateUI}: {setUpdateUI: any}) {
         if (allowedVideoExtensions.includes(fileExtension)) {
           setAttachedVideo(video);
         } else {
-          showMessage({
-            message: 'Invalid video format. Please select a valid video file.',
-            type: 'danger',
+          Toast.show({
+            text1: 'Invalid video format. Please select a valid video file.',
+            type: 'error',
           });
         }
       }
@@ -217,7 +217,6 @@ export default function CreatePost({setUpdateUI}: {setUpdateUI: any}) {
             style={styles.icon}
           />
         </TouchableOpacity>
-        {/* <Button title="Post" onPress={handlePostSubmit} /> */}
         <TouchableOpacity style={styles.button} onPress={handlePostSubmit}>
           <Icon name="send" size={18} style={{marginRight: 6, color: '#fff'}} />
           <Text style={styles.buttonText}>Post</Text>

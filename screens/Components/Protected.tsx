@@ -10,7 +10,6 @@ import {
   Text,
   TextInput,
   StyleSheet,
-  Image,
   StatusBar,
   SafeAreaView,
 } from 'react-native';
@@ -24,7 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {axiosInstance} from './AxiosConfig';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
-import {ThemeContext} from '../Context/ThemeContext';
+import {GlobalState} from '../Context/GlobalState';
 import Dropdown from './Dropdown';
 import NotificationComponent from './Notification';
 import Spinner from './Spinner';
@@ -37,7 +36,8 @@ interface ProtectedProps {
 const Protected: React.FC<ProtectedProps> = ({children}) => {
   const navigation = useNavigation<NavigationProp<any>>();
 
-  const {darkMode, toggleTheme, orientation} = useContext(ThemeContext);
+  const {darkMode, search, setSearch, toggleTheme, orientation} =
+    useContext(GlobalState);
   const [loadingUser, setLoadingUser] = useState(true);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [user, setUser] = useState<any>();
@@ -153,7 +153,7 @@ const Protected: React.FC<ProtectedProps> = ({children}) => {
       elevation: 4,
     },
     title: {
-      marginLeft:7,
+      marginLeft: 7,
       fontSize: 26,
       fontWeight: 'bold',
       textShadowColor: 'rgba(255, 255, 255, 0.8)', // White color with opacity
@@ -201,6 +201,9 @@ const Protected: React.FC<ProtectedProps> = ({children}) => {
                   style={styles.searchInput}
                   placeholder="Search..."
                   placeholderTextColor={darkMode ? '#fff' : '#666'}
+                  value={search}
+                  onTouchStart={() => navigation.navigate('Search')}
+                  onChangeText={setSearch}
                 />
               </View>
               {/* Logo */}

@@ -2,19 +2,14 @@ import React, {useContext, useEffect, useState} from 'react';
 import {
   View,
   Text,
-  Image,
-  Button,
   ScrollView,
-  Modal,
-  TextInput,
   StyleSheet,
 } from 'react-native';
 import {UserBaseURL} from './Components/API';
 import {axiosInstance} from './Components/AxiosConfig';
-import {RefreshControl, TouchableOpacity} from 'react-native-gesture-handler';
-import {ThemeContext} from './Context/ThemeContext';
+import {RefreshControl} from 'react-native-gesture-handler';
+import {GlobalState} from './Context/GlobalState';
 import CreatePost from './Components/CreatePost';
-import {NavigationProp, useNavigation} from '@react-navigation/native';
 import Posts from './Components/Posts';
 
 interface User {
@@ -43,7 +38,7 @@ const Home: React.FC = () => {
   const [ad, setAd] = useState<Post[]>([]);
   const [updateUI, setUpdateUI] = useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
-  const {darkMode, user} = useContext(ThemeContext);
+  const { user} = useContext(GlobalState);
 
   const handleRefresh = () => {
     setIsRefreshing(prev => !prev);

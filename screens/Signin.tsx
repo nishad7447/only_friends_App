@@ -20,7 +20,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import FixedPlugin from './Components/FixedPlugin';
 import Card from './Components/Card';
-import {ThemeContext} from './Context/ThemeContext';
+import {GlobalState} from './Context/GlobalState';
 import {UserBaseURL} from './Components/API';
 import {ScrollView} from 'react-native-gesture-handler';
 
@@ -33,7 +33,7 @@ export default function SignIn({}: SignInProps) {
   const [passErr, setPassErr] = useState<string>('');
   const [formErr, setFormErr] = useState<string>('');
   const navigation = useNavigation<NavigationProp<any>>();
-  const {setUser, darkMode, orientation} = useContext(ThemeContext);
+  const {setUser, darkMode, orientation} = useContext(GlobalState);
 
   useFocusEffect(
     useCallback(() => {

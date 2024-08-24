@@ -3,7 +3,7 @@ import {axiosInstance} from './AxiosConfig';
 import {UserBaseURL} from './API';
 import Toast from 'react-native-toast-message';
 import Card from './Card';
-import {ThemeContext} from '../Context/ThemeContext';
+import {GlobalState} from '../Context/GlobalState';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {Image, StyleSheet, Text, View} from 'react-native';
@@ -34,7 +34,7 @@ const Posts: React.FC<PostsProps> = ({
 }) => {
   const navigation = useNavigation<NavigationProp<any>>();
   const [clickedPostId, setClickedPostId] = useState<string | null>(null);
-  const {darkMode} = useContext(ThemeContext);
+  const {darkMode, user} = useContext(GlobalState);
 
   const handleCommentClick = (postId: string) => {
     setClickedPostId(postId);
@@ -448,7 +448,7 @@ const Posts: React.FC<PostsProps> = ({
           shadowOffset: {width: 0, height: 2},
           shadowOpacity: 0.2,
           shadowRadius: 4,
-          elevation: 10,
+          elevation: 2,
         }}>
         <View style={styles.headerContiner}>
           <TouchableOpacity onPress={() => handleGoToUser(post.userId._id)}>
@@ -577,9 +577,9 @@ const Posts: React.FC<PostsProps> = ({
             onPress={async () => {
               try {
                 await Share.open({
-                  title: 'Share this link',
-                  message: 'Check out this link!',
-                  url: `https://onlyfriends.fun/#${post._id}`,
+                  title: `Post Shared By ${user.Name}`,
+                  message: `Post Shared By ${user.Name} Check out this link!`,
+                  urls: [`https://onlyfriends.fun/#${post._id}`],
                 });
               } catch (error) {
                 Toast.show({

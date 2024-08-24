@@ -2,10 +2,10 @@ import React, {useContext} from 'react';
 import {TouchableOpacity, View, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {ThemeContext} from '../Context/ThemeContext';
+import {GlobalState} from '../Context/GlobalState';
 
-const FixedPlugin: React.FC<{ orientation: string }> = ({ orientation }) => {
-  const {darkMode, toggleTheme} = useContext(ThemeContext);
+const FixedPlugin: React.FC<{orientation: string}> = ({orientation}) => {
+  const {darkMode, toggleTheme} = useContext(GlobalState);
 
   return (
     <TouchableOpacity
@@ -13,7 +13,11 @@ const FixedPlugin: React.FC<{ orientation: string }> = ({ orientation }) => {
       onPress={toggleTheme}>
       <View style={styles.iconContainer}>
         {darkMode ? (
-          <MaterialCommunityIcons name="white-balance-sunny" size={24} color="white" />
+          <MaterialCommunityIcons
+            name="white-balance-sunny"
+            size={24}
+            color="white"
+          />
         ) : (
           <Icon name="moon" size={24} color="white" />
         )}

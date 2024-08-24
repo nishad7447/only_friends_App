@@ -12,7 +12,7 @@ import {
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import {ThemeContext} from '../Context/ThemeContext';
+import {GlobalState} from '../Context/GlobalState';
 import Toast from 'react-native-toast-message';
 import {UserBaseURL} from './API';
 import {axiosInstance} from './AxiosConfig';
@@ -27,7 +27,7 @@ const CommentModal: React.FC<CommentModalProps> = ({postId, closeModal}) => {
   const [comment, setComment] = useState('');
   const [fetchedComments, setFetchedComments] = useState([]);
   const [updateUI, setUpdateUI] = useState(false);
-  const {darkMode, user} = useContext(ThemeContext);
+  const {darkMode, user} = useContext(GlobalState);
   const modalRef = useRef<View>(null);
   const [delCommentModal, setDelCommentModal] = useState(false);
   const [delCommentId, setDelCommentId] = useState<string | null>(null);
@@ -118,7 +118,7 @@ const CommentModal: React.FC<CommentModalProps> = ({postId, closeModal}) => {
         <View
           style={[
             styles.modalContent,
-            {backgroundColor: darkMode ? '#333' : '#fff'},
+            {backgroundColor: darkMode ? '#1B2559' : '#EBF1F7'},
           ]}>
           <View style={styles.header}>
             <Text style={[styles.title, {color: darkMode ? '#fff' : '#000'}]}>
@@ -133,7 +133,9 @@ const CommentModal: React.FC<CommentModalProps> = ({postId, closeModal}) => {
             </TouchableOpacity>
           </View>
           <View style={styles.separator} />
-          <ScrollView style={styles.commentsContainer} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            style={styles.commentsContainer}
+            showsVerticalScrollIndicator={false}>
             {Array.isArray(fetchedComments) && fetchedComments.length > 0 ? (
               fetchedComments.map((comment: any, index) => (
                 <View key={index} style={[styles.comment]}>
@@ -142,7 +144,7 @@ const CommentModal: React.FC<CommentModalProps> = ({postId, closeModal}) => {
                     style={styles.commentAvatar}
                   />
                   <View style={styles.commentContent}>
-                    <Text style={styles.commentText}>{comment.content}</Text>
+                    <Text style={[styles.commentText,{color: darkMode ? '#fff' : '#000'}]}>{comment.content}</Text>
                     <Text style={styles.commentTime}>
                       {formatPostDate(comment.createdAt)}
                     </Text>
@@ -215,7 +217,7 @@ const CommentModal: React.FC<CommentModalProps> = ({postId, closeModal}) => {
             <View
               style={[
                 styles.modalContent,
-                {backgroundColor: darkMode ? '#333' : '#fff'},
+                {backgroundColor: darkMode ? '#1B2559' : '#EBF1F7'},
               ]}>
               <Text
                 style={[
@@ -284,7 +286,7 @@ const styles = StyleSheet.create({
   },
   commentsContainer: {
     // flex: 1,
-    maxHeight:'80%',
+    maxHeight: '80%',
     marginBottom: 16,
   },
   comment: {
@@ -309,7 +311,6 @@ const styles = StyleSheet.create({
   },
   commentText: {
     fontSize: 16,
-    color: '#000',
   },
 
   commentTime: {
@@ -326,11 +327,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   textInput: {
+    elevation:3,
     flex: 1,
     borderRadius: 20,
     padding: 10,
     marginRight: 10,
-    maxHeight:80
+    maxHeight: 80,
   },
   sendButton: {
     padding: 10,
@@ -341,12 +343,12 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   modalTitle: {
-    marginBottom:8,
+    marginBottom: 8,
     fontSize: 18,
     fontWeight: 'bold',
   },
   modalContentText: {
-    marginBottom:8,
+    marginBottom: 8,
     fontSize: 16,
   },
   modalButtons: {
