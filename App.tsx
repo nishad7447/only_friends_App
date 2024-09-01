@@ -38,12 +38,6 @@ const withProtected = <P extends object>(
 
 const App = () => {
   const {darkMode} = useContext(GlobalState);
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId:
-        '969952852580-q77urroi4f3chu5hlua9nqpvq6vl1gje.apps.googleusercontent.com', // Replace with your Google client ID
-    });
-  }, []);
 
   const styles = StyleSheet.create({
     toast: {

@@ -14,6 +14,7 @@ import {
 import {
   GoogleSignin,
   GoogleSigninButton,
+  statusCodes,
 } from '@react-native-google-signin/google-signin';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -46,12 +47,6 @@ export default function SignIn({}: SignInProps) {
       checkToken();
     }, [navigation]),
   );
-
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: 'YOUR_GOOGLE_CLIENT_ID',
-    });
-  }, []);
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -103,62 +98,64 @@ export default function SignIn({}: SignInProps) {
       });
   };
 
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: '969952852580-q77urroi4f3chu5hlua9nqpvq6vl1gje.apps.googleusercontent.com', // Your web client ID
+      androidClientId: '969952852580-gfgeq0bddp3jj9658m145n2ao2ogmug6.apps.googleusercontent.com', // Your Android client ID
+      scopes: ['profile', 'email'],
+      offlineAccess: true, // If you need offline access
+    });
+  }, []);
+
   const handleGoogleLogin = async () => {
     try {
-      await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();
-      axios
-        .post(`${UserBaseURL}/auth/googleSignIn`, userInfo)
-        .then(res => {
-          if (res.data.message === 'Login Success') {
-            AsyncStorage.setItem('jwtToken', JSON.stringify(res.data.token));
-            Toast.show({
-              type: 'success',
-              text1: 'Login success',
-              props: {
-                style: {
-                  backgroundColor: '#4CAF50', // Success green
-                  padding: 15,
-                  borderRadius: 25, // Rounded corners
-                  width: '80%', // Width of the toast
-                  alignSelf: 'center', // Center the toast on the screen
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  shadowColor: '#000', // Optional: Add shadow for depth
-                  shadowOffset: {width: 0, height: 2},
-                  shadowOpacity: 0.25,
-                  shadowRadius: 3.84,
-                  elevation: 5, // Optional: Shadow for Android
-                },
-                textStyle: {
-                  color: '#FFFFFF', // White text
-                  fontSize: 16,
-                  fontWeight: 'bold',
-                  textAlign: 'center', // Center the text
-                },
-              },
-            });
-            navigation.navigate('Home');
-          } else {
-            Toast.show({type: 'error', text1: res.data.message});
-            if (res.data.message === 'User does not exist') {
-              setEmailErr(res.data.message);
-            } else if (res.data.message === 'User is blocked') {
-              setEmailErr(res.data.message);
-            }
-          }
-        })
-        .catch(err => {
-          console.log(err);
-          Toast.show({type: 'error', text1: err.message});
-          if (err.message === 'Request failed with status code 400') {
-            setEmailErr('User does not exist');
-          } else {
-            setEmailErr(err.message);
-          }
-        });
-    } catch (error) {
-      setEmailErr('Login Failed');
+      let token;
+      await GoogleSignin.signOut();
+       console.log('Signed out previous session');
+      const isSignedIn = await GoogleSignin.hasPreviousSignIn();
+      console.log({isSignedIn});
+      if (isSignedIn) {
+        // User is already signed in, get the tokens
+        const tokens = await GoogleSignin.getTokens();
+        console.log(tokens);
+        token = tokens.idToken;
+      } else {
+        await GoogleSignin.hasPlayServices();
+        const userInfo = await GoogleSignin.signIn();
+        token = userInfo.idToken;
+        console.log(token);
+      }
+      const res = await axios.post(`${UserBaseURL}/auth/googleSignIn`, {
+        credential: token,
+      });
+      if (res.data.message === 'Login Success') {
+        AsyncStorage.setItem('jwtToken', JSON.stringify(res.data.token));
+        AsyncStorage.setItem('user', JSON.stringify(res.data.user));
+        setUser(res.data.user);
+        Toast.show({type: 'success', text1: 'Login success'});
+        navigation.navigate('Home');
+      } else {
+        Toast.show({type: 'error', text1: res.data.message});
+        if (
+          res.data.message === 'User does not exist' ||
+          res.data.message === 'User is blocked'
+        ) {
+          setEmailErr(res.data.message);
+        }
+      }
+    } catch (error: any) {
+      console.error('Detailed error:', JSON.stringify(error, null, 2));
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        console.log('User cancelled the login flow');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        console.log('Operation is in progress already');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        console.log('Play services not available or outdated');
+      } else {
+        console.error('Something went wrong during sign in', error.code);
+        setEmailErr('Login Failed');
+        Toast.show({type: 'error', text1: 'Login Failed'});
+      }
     }
   };
 

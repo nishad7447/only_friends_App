@@ -11,6 +11,7 @@ import {
 import {
   GoogleSignin,
   GoogleSigninButton,
+  statusCodes,
 } from '@react-native-google-signin/google-signin';
 import axios from 'axios';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
@@ -18,12 +19,8 @@ import Card from './Components/Card';
 import FixedPlugin from './Components/FixedPlugin';
 import {GlobalState} from './Context/GlobalState';
 import {UserBaseURL} from './Components/API';
-import { ScrollView } from 'react-native-gesture-handler';
-
-GoogleSignin.configure({
-  webClientId:
-    '969952852580-q77urroi4f3chu5hlua9nqpvq6vl1gje.apps.googleusercontent.com',
-});
+import {ScrollView} from 'react-native-gesture-handler';
+import Toast from 'react-native-toast-message';
 
 export default function SignUp() {
   const [email, setEmail] = useState('');
@@ -119,6 +116,68 @@ export default function SignUp() {
     }, 3000);
     return () => clearTimeout(timer);
   }, [emailErr, passErr, usernameErr, mobErr, formErr, otpErr]);
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId:
+        '969952852580-q77urroi4f3chu5hlua9nqpvq6vl1gje.apps.googleusercontent.com', // Your web client ID
+      androidClientId:
+        '969952852580-gfgeq0bddp3jj9658m145n2ao2ogmug6.apps.googleusercontent.com', // Your Android client ID
+      scopes: ['profile', 'email'],
+      offlineAccess: true, // If you need offline access
+    });
+  }, []);
+
+  const handleGoogleSignUp = async () => {
+    try {
+      // Always sign out before attempting a new sign-up
+      await GoogleSignin.signOut();
+      console.log('Signed out previous session');
+
+      // Check for Play Services
+      await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+
+      // Attempt to sign in
+      const userInfo = await GoogleSignin.signIn();
+
+      if (userInfo && userInfo.idToken) {
+        console.log(userInfo.idToken);
+        const res: any = await axios.post(`${UserBaseURL}/auth/googleSignUp`, {
+          credential: userInfo.idToken,
+        });
+        if (
+          res.data.message === 'Signup Success' ||
+          res.data.message === 'User saved successfully'
+        ) {
+          Toast.show({type: 'success', text1: res.data.message});
+          navigation.navigate('SignIn');
+        }
+      }
+    } catch (error: any) {
+      if (error?.message === 'Request failed with status code 400') {
+        setEmailErr('User already exist');
+        return Toast.show({type: 'error', text1: 'User already exist'});
+      } else {
+        setEmailErr(error?.message);
+        return Toast.show({type: 'error', text1: error?.message});
+      }
+      console.error('Detailed error:', JSON.stringify(error.message, null, 2));
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        console.log('User cancelled the login flow');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        console.log('Operation is in progress already');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        console.log('Play services not available or outdated');
+      } else {
+        console.error(
+          'Something went wrong during sign up',
+          error.code,
+          error.message,
+        );
+        setEmailErr('Signup Failed');
+      }
+    }
+  };
 
   const {darkMode, orientation} = useContext(GlobalState);
 
@@ -240,32 +299,12 @@ export default function SignUp() {
           <Text style={styles.subtitle}>Welcome to OnlyFriends family</Text>
 
           <GoogleSigninButton
-            onPress={() => {
-              GoogleSignin.signIn()
-                .then((data: any) => {
-                  axios
-                    .post(`${UserBaseURL}/auth/googleSignUp`, data)
-                    .then(() => {
-                      Alert.alert('Success', 'Google signup success');
-                      navigation.navigate('SignIn');
-                    })
-                    .catch(err => {
-                      if (
-                        err.message === 'Request failed with status code 400'
-                      ) {
-                        setEmailErr('User already exist');
-                      } else {
-                        setEmailErr(err.message);
-                      }
-                    });
-                })
-                .catch(() => {
-                  setEmailErr('Login Failed');
-                });
-            }}
-            style={styles.googleButton}
+            onPress={handleGoogleSignUp}
+            style={{width: '100%', height: 48}}
+            size={GoogleSigninButton.Size.Wide}
+            color={'light'}
           />
-
+          
           <View style={styles.separator}>
             <View style={styles.separatorLine} />
             <Text style={styles.separatorText}>or</Text>
